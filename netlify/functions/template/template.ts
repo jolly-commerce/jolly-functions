@@ -1,21 +1,23 @@
 import { Handler } from "@netlify/functions";
 
+
+
 export const handler: Handler = async (event, context) => {
-  if (!event.queryStringParameters) {
+  if (!event.body) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ err: "no body :( " }),
+      body: JSON.stringify({err: "no body :( "}),
     };
   }
-  const body = event.queryStringParameters;
+  const body: {base64: string} = JSON.parse(event.body);
 
   if (!body.base64) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ err: "expected a bse64 bro :( " }),
+      body: JSON.stringify({err: "expected a bse64 bro :( "}),
     };
   }
-
+  
   return {
     statusCode: 200,
     headers: {
