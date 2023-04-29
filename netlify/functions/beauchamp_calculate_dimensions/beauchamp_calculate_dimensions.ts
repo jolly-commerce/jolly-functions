@@ -10,7 +10,7 @@ export const handler: Handler = async (event, context) => {
     };
   }
   const body = JSON.parse(event.body);
-
+  
   // if (!body.base64) {
   //   return {
   //     statusCode: 400,
@@ -21,9 +21,9 @@ export const handler: Handler = async (event, context) => {
   return {
     statusCode: 200,
     headers: {
-      "Content-Type": "application/JSON",
+      "Content-Type": "application/json",
     },
-    body: body,
+    body: JSON.stringify(body),
   
   };
 };
