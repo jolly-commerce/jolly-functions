@@ -22,7 +22,16 @@ export const handler: Handler = async (event, context) => {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ boxDepth, boxHeight, boxWidth }),
+    body: JSON.stringify({
+      boxDepth,
+      boxHeight,
+      boxWidth,
+      context: {
+        productTags,
+        productHeight,
+        productWidth,
+      },
+    }),
   };
 };
 
