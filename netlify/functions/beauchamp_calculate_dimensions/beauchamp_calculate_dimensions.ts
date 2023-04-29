@@ -110,7 +110,27 @@ function getProductTags(productJson) {
     return [];
   }
 
-  return tags;
+  return tags.map(tag => {
+      // Normalize the Unicode string by decomposing the characters
+    // with diacritics (accents) into their base characters.
+    const decomposedTag = tag.normalize("NFD");
+
+    // Remove diacritics (accents) by matching and replacing
+    // characters in the Unicode range U+0300 to U+036F.
+    const removedAccentsTag = decomposedTag.replace(/[\u0300-\u036f]/g, "");
+
+    // Remove any white spaces from the tag.
+    const removedSpacesTag = removedAccentsTag.replace(/\s+/g, "");
+
+    // Remove any non-alphanumeric characters.
+    const alphanumericTag = removedSpacesTag.replace(/[^a-zA-Z0-9]/g, "");
+
+    // Convert the tag to lowercase for easier comparison.
+    const normalizedTag = alphanumericTag.toLowerCase();
+
+
+    return normalizedTag
+  });
 }
 
 //
@@ -133,25 +153,11 @@ function getBoxType(tags) {
   }
 
   tags.forEach((tag) => {
-    // Normalize the Unicode string by decomposing the characters
-    // with diacritics (accents) into their base characters.
-    const decomposedTag = tag.normalize("NFD");
-
-    // Remove diacritics (accents) by matching and replacing
-    // characters in the Unicode range U+0300 to U+036F.
-    const removedAccentsTag = decomposedTag.replace(/[\u0300-\u036f]/g, "");
-
-    // Remove any white spaces from the tag.
-    const removedSpacesTag = removedAccentsTag.replace(/\s+/g, "");
-
-    // Convert the tag to lowercase for easier comparison.
-    const normalizedTag = removedSpacesTag.toLowerCase();
-
-    if (normalizedTag === "boitesimple") {
+    if (tag === "boitesimple") {
       isSimpleBox = true;
-    } else if (normalizedTag === "boitedouble") {
+    } else if (tag === "boitedouble") {
       isDoubleBox = true;
-    } else if (normalizedTag === "boitespeciale") {
+    } else if (tag === "boitespeciale") {
       isSpecialBox = true;
     }
   });
