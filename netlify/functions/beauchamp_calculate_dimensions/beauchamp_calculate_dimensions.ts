@@ -114,34 +114,41 @@ function getBoxType(tags) {
   let isSpecialBox = false;
   let hasNoBoxDefinition = false;
 
-  if (tags && Array.isArray(tags)) {
-    tags.forEach((tag) => {
-      // Normalize the Unicode string by decomposing the characters
-      // with diacritics (accents) into their base characters.
-      const decomposedTag = tag.normalize("NFD");
+  if (!tags || !Array.isArray(tags)) {
+    return {
+      isSimpleBox: false,
+      isDoubleBox: false,
+      isSpecialBox: false,
+      hasNoBoxDefinition: true,
+    };
+  }
 
-      // Remove diacritics (accents) by matching and replacing
-      // characters in the Unicode range U+0300 to U+036F.
-      const removedAccentsTag = decomposedTag.replace(/[\u0300-\u036f]/g, "");
+  tags.forEach((tag) => {
+    // Normalize the Unicode string by decomposing the characters
+    // with diacritics (accents) into their base characters.
+    const decomposedTag = tag.normalize("NFD");
 
-      // Remove any white spaces from the tag.
-      const removedSpacesTag = removedAccentsTag.replace(/\s+/g, "");
+    // Remove diacritics (accents) by matching and replacing
+    // characters in the Unicode range U+0300 to U+036F.
+    const removedAccentsTag = decomposedTag.replace(/[\u0300-\u036f]/g, "");
 
-      // Convert the tag to lowercase for easier comparison.
-      const normalizedTag = removedSpacesTag.toLowerCase();
+    // Remove any white spaces from the tag.
+    const removedSpacesTag = removedAccentsTag.replace(/\s+/g, "");
 
-      if (normalizedTag === "boitesimple") {
-        isSimpleBox = true;
-      } else if (normalizedTag === "boitedouble") {
-        isDoubleBox = true;
-      } else if (normalizedTag === "boitespeciale") {
-        isSpecialBox = true;
-      }
-    });
+    // Convert the tag to lowercase for easier comparison.
+    const normalizedTag = removedSpacesTag.toLowerCase();
 
-    if (!isSimpleBox && !isDoubleBox && !isSpecialBox) {
-      hasNoBoxDefinition = true;
+    if (normalizedTag === "boitesimple") {
+      isSimpleBox = true;
+    } else if (normalizedTag === "boitedouble") {
+      isDoubleBox = true;
+    } else if (normalizedTag === "boitespeciale") {
+      isSpecialBox = true;
     }
+  });
+
+  if (!isSimpleBox && !isDoubleBox && !isSpecialBox) {
+    hasNoBoxDefinition = true;
   }
 
   return { isSimpleBox, isDoubleBox, isSpecialBox, hasNoBoxDefinition };
