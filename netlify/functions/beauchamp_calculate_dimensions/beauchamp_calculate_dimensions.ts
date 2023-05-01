@@ -1,4 +1,11 @@
 import { Handler } from "@netlify/functions";
+import * as https from "https";
+
+
+const SHOPIFY_ACCESS_TOKEN = process.env.SHOPIFY_ACCESS_TOKEN;
+
+const shopifyGraphEndpoint =
+  "https://galeriebeauchamp.myshopify.com/admin/api/2023-04/graphql.json";
 
 export const handler: Handler = async (event, context) => {
   if (!event.body) {
@@ -7,15 +14,112 @@ export const handler: Handler = async (event, context) => {
       body: JSON.stringify({ err: "no body :( " }),
     };
   }
-  const body = JSON.parse(event.body);
-  const productTags = getProductTags(body);
-  const { productHeight, productWidth } = getProductDimensions(body);
+  const product = JSON.parse(event.body);
+
+  const queryBody = `
+  query {
+    product(id: "${product.admin_graphql_api_id}") {
+      id
+      title
+      tags
+      variants(first: 2) {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      metafields(first: 20) {
+        edges {
+          node {
+            id
+            key
+            namespace
+            value
+            type
+          }
+        }
+      }
+    }
+  }`;
+
+  const shopifyResponse = await makeRequest(
+    shopifyGraphEndpoint,
+    "POST",
+    {
+      "Content-Type": "application/json",
+      "X-Shopify-Access-Token": SHOPIFY_ACCESS_TOKEN, // Replace with your actual access token
+    },
+    JSON.stringify({ query: queryBody })
+  );
+
+  const shopifyData: any = shopifyResponse;
+  const productData = shopifyData.data.product;
+
+  if (!productData) {
+    return {
+      statusCode: 400,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+  }
+
+  const productTags = getProductTags(shopifyData);
+  const { productHeight, productWidth } = getProductDimensions(shopifyData);
   const { boxDepth, boxHeight, boxWidth } = findBestBox({
     productHeight,
     productWidth,
     productTags,
     boxSizes,
   });
+
+  if (!boxDepth) {
+    return {
+      statusCode: 400,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+  }
+
+  const mutationBody = `
+      mutation UpdateVariantMetafields($metafields: [MetafieldsSetInput!]!) {
+        metafieldsSet(metafields: $metafields) {
+          metafields {
+            id
+            namespace
+            key
+            value
+          }
+          userErrors {
+            field
+            message
+          }
+        }
+      }`;
+
+  const metafields = product.variants.map((variant) => ({
+    ownerId: variant.admin_graphql_api_id,
+    namespace: "custom",
+    key: "package_length",
+    value: 44444,
+  }));
+
+  const mutationResponse = await makeRequest(
+    shopifyGraphEndpoint,
+    "POST",
+    {
+      "Content-Type": "application/json",
+      "X-Shopify-Access-Token": SHOPIFY_ACCESS_TOKEN, // Replace with your actual access token
+    },
+    JSON.stringify({
+      query: mutationBody,
+      variables: { metafields },
+    })
+  );
+
+  const mutationData = mutationResponse;
 
   return {
     statusCode: 200,
@@ -31,6 +135,7 @@ export const handler: Handler = async (event, context) => {
         productHeight,
         productWidth,
       },
+      mutationData,
     }),
   };
 };
@@ -110,8 +215,8 @@ function getProductTags(productJson) {
     return [];
   }
 
-  return tags.map(tag => {
-      // Normalize the Unicode string by decomposing the characters
+  return tags.map((tag) => {
+    // Normalize the Unicode string by decomposing the characters
     // with diacritics (accents) into their base characters.
     const decomposedTag = tag.normalize("NFD");
 
@@ -128,8 +233,7 @@ function getProductTags(productJson) {
     // Convert the tag to lowercase for easier comparison.
     const normalizedTag = alphanumericTag.toLowerCase();
 
-
-    return normalizedTag
+    return normalizedTag;
   });
 }
 
@@ -203,4 +307,40 @@ function findBestBox({ productTags, productWidth, productHeight, boxSizes }) {
     boxHeight: boxHeight,
     boxDepth: boxDepth,
   };
+}
+
+
+
+function makeRequest(url, method, headers = {}, body?: any) {
+  return new Promise((resolve, reject) => {
+    const parsedUrl = new URL(url);
+    const options = {
+      hostname: parsedUrl.hostname,
+      path: parsedUrl.pathname + parsedUrl.search,
+      method: method,
+      headers: headers,
+    };
+
+    const req = https.request(options, (res) => {
+      let data = "";
+
+      res.on("data", (chunk) => {
+        data += chunk;
+      });
+
+      res.on("end", () => {
+        resolve(JSON.parse(data));
+      });
+    });
+
+    req.on("error", (error) => {
+      reject(error);
+    });
+
+    if (body) {
+      req.write(body);
+    }
+
+    req.end();
+  });
 }
