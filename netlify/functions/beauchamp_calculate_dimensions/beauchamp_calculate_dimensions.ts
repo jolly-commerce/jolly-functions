@@ -2,12 +2,14 @@ import { Handler } from "@netlify/functions";
 import * as https from "https";
 
 
-const SHOPIFY_ACCESS_TOKEN = process.env.SHOPIFY_ACCESS_TOKEN;
+
+
+export const handler: Handler = async (event, context) => {
+
+  const SHOPIFY_ACCESS_TOKEN = process.env.SHOPIFY_ACCESS_TOKEN;
 
 const shopifyGraphEndpoint =
   "https://galeriebeauchamp.myshopify.com/admin/api/2023-04/graphql.json";
-
-export const handler: Handler = async (event, context) => {
   if (!event.body) {
     return {
       statusCode: 400,
