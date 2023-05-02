@@ -1,15 +1,11 @@
 import { Handler } from "@netlify/functions";
 import * as https from "https";
 
-
-
-
 export const handler: Handler = async (event, context) => {
-
   const SHOPIFY_ACCESS_TOKEN = process.env.SHOPIFY_ACCESS_TOKEN;
 
-const shopifyGraphEndpoint =
-  "https://galeriebeauchamp.myshopify.com/admin/api/2023-04/graphql.json";
+  const shopifyGraphEndpoint =
+    "https://galeriebeauchamp.myshopify.com/admin/api/2023-04/graphql.json";
   if (!event.body) {
     return {
       statusCode: 400,
@@ -53,15 +49,14 @@ const shopifyGraphEndpoint =
       "X-Shopify-Access-Token": SHOPIFY_ACCESS_TOKEN, // Replace with your actual access token
     },
     JSON.stringify({ query: queryBody })
-  )
-
+  );
 
   if (!productData) {
     return {
       statusCode: 400,
       body: JSON.stringify({
         toto: false,
-        queryBody
+        queryBody,
       }),
       headers: {
         "Content-Type": "application/json",
@@ -81,6 +76,8 @@ const shopifyGraphEndpoint =
   if (!boxDepth) {
     return {
       statusCode: 400,
+      body: JSON.stringify({ err: "no box depth" }),
+
       headers: {
         "Content-Type": "application/json",
       },
@@ -312,8 +309,6 @@ function findBestBox({ productTags, productWidth, productHeight, boxSizes }) {
     boxDepth: boxDepth,
   };
 }
-
-
 
 function makeRequest(url, method, headers = {}, body?: any) {
   return new Promise((resolve, reject) => {
