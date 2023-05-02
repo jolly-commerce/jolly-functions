@@ -76,7 +76,10 @@ export const handler: Handler = async (event, context) => {
   if (!boxDepth) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ err: "no box depth" }),
+      body: JSON.stringify({
+         err: "no box depth",
+        productData
+        }),
 
       headers: {
         "Content-Type": "application/json",
