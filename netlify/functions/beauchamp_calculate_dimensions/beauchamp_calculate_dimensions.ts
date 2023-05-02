@@ -56,7 +56,7 @@ const shopifyGraphEndpoint =
   );
 
   const shopifyData: any = shopifyResponse;
-  const productData = shopifyData.data.product;
+  const productData = shopifyData;
 
   if (!productData) {
     return {
