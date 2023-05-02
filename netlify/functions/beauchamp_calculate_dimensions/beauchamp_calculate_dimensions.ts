@@ -51,18 +51,7 @@ export const handler: Handler = async (event, context) => {
     JSON.stringify({ query: queryBody })
   );
 
-  if (!productData) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({
-        toto: false,
-        queryBody,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-  }
+ 
 
   const productTags = getProductTags(productData);
   const { productHeight, productWidth } = getProductDimensions(productData);
@@ -78,7 +67,8 @@ export const handler: Handler = async (event, context) => {
       statusCode: 400,
       body: JSON.stringify({
          err: "no box depth",
-        productData
+        productData,
+        product,
         }),
 
       headers: {
