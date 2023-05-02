@@ -45,7 +45,7 @@ const shopifyGraphEndpoint =
     }
   }`;
 
-  const shopifyResponse = await makeRequest(
+  const productData = await makeRequest(
     shopifyGraphEndpoint,
     "POST",
     {
@@ -53,26 +53,15 @@ const shopifyGraphEndpoint =
       "X-Shopify-Access-Token": SHOPIFY_ACCESS_TOKEN, // Replace with your actual access token
     },
     JSON.stringify({ query: queryBody })
-  ).catch(err => {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({
-        err
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-  });
+  )
 
-  const shopifyData: any = shopifyResponse;
-  const productData = shopifyData;
 
   if (!productData) {
     return {
       statusCode: 400,
       body: JSON.stringify({
-        
+        toto: false,
+        queryBody
       }),
       headers: {
         "Content-Type": "application/json",
@@ -80,8 +69,8 @@ const shopifyGraphEndpoint =
     };
   }
 
-  const productTags = getProductTags(shopifyData);
-  const { productHeight, productWidth } = getProductDimensions(shopifyData);
+  const productTags = getProductTags(productData);
+  const { productHeight, productWidth } = getProductDimensions(productData);
   const { boxDepth, boxHeight, boxWidth } = findBestBox({
     productHeight,
     productWidth,
