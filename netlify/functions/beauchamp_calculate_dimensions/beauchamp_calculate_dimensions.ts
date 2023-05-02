@@ -53,7 +53,17 @@ const shopifyGraphEndpoint =
       "X-Shopify-Access-Token": SHOPIFY_ACCESS_TOKEN, // Replace with your actual access token
     },
     JSON.stringify({ query: queryBody })
-  );
+  ).catch(err => {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        err
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+  });
 
   const shopifyData: any = shopifyResponse;
   const productData = shopifyData;
@@ -61,6 +71,9 @@ const shopifyGraphEndpoint =
   if (!productData) {
     return {
       statusCode: 400,
+      body: JSON.stringify({
+        
+      }),
       headers: {
         "Content-Type": "application/json",
       },
