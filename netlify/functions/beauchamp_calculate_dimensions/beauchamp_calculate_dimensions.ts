@@ -12,7 +12,7 @@ export const handler: Handler = async (event, context) => {
       body: JSON.stringify({ err: "no body :( " }),
     };
   }
-  const product = JSON.parse(event.body);
+  const product = JSON.parse(JSON.parse(event.body));
 
   const queryBody = `
   query {
