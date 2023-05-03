@@ -16,7 +16,7 @@ export const handler: Handler = async (event, context) => {
 
   const queryBody = `
   query {
-    product(id: "${product.id}") {
+    product(id: "${product.admin_graphql_api_id}") {
       id
       title
       tags
