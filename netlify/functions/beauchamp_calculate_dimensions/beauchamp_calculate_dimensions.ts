@@ -69,6 +69,7 @@ export const handler: Handler = async (event, context) => {
          err: "no box depth",
         productData,
         product,
+        queryBody,
         typeof: typeof product,
         t: typeof product.admin_graphql_api_id
         }),
