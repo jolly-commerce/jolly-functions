@@ -71,7 +71,8 @@ export const handler: Handler = async (event, context) => {
         product,
         queryBody,
         typeof: typeof product,
-        t: typeof product.admin_graphql_api_id
+        t: typeof product.admin_graphql_api_id,
+        k: product.admin_graphql_api_id,
         }),
 
       headers: {
