@@ -16,7 +16,7 @@ export const handler: Handler = async (event, context) => {
 
   const queryBody = `
   query {
-    product(id: "gid://shopify/Product/${product.id}") {
+    product(id: "${product.id}") {
       id
       title
       tags
@@ -69,6 +69,8 @@ export const handler: Handler = async (event, context) => {
          err: "no box depth",
         productData,
         product,
+        typeof: typeof product,
+        t: typeof product.id
         }),
 
       headers: {
