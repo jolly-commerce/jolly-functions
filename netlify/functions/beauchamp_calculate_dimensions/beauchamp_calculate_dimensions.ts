@@ -70,7 +70,7 @@ export const handler: Handler = async (event, context) => {
         productData,
         product,
         typeof: typeof product,
-        t: typeof product.id
+        t: typeof product.admin_graphql_api_id
         }),
 
       headers: {
