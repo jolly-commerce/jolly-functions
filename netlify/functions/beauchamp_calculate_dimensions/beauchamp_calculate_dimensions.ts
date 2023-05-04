@@ -105,21 +105,21 @@ export const handler: Handler = async (event, context) => {
     namespace: "custom",
     key: `package_width`,
     value: `${boxWidth}`,
-    type: "decimal"
+    type: "float"
   },
   {
     ownerId: variantAdminGraphQLId,
     namespace: "custom",
     key: `package_length`,
     value: `${boxDepth}`,
-    type: "decimal"
+    type: "float"
   },
   {
     ownerId: variantAdminGraphQLId,
     namespace: "custom",
     key: `package_height`,
     value: `${boxHeight}`,
-    type: "decimal"
+    type: "float"
   }]
 
 
