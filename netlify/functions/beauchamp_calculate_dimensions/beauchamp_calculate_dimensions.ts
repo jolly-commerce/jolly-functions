@@ -98,12 +98,27 @@ export const handler: Handler = async (event, context) => {
         }
       }`;
 
-  const metafields = product.variants.map((variant) => ({
-    ownerId: variant.admin_graphql_api_id,
+  const variantAdminGraphQLId = product.variants[0].admin_graphql_api_id 
+  
+  const metafields = [{
+    ownerId: variantAdminGraphQLId,
     namespace: "custom",
-    key: "package_length",
-    value: 44444,
-  }));
+    key: `package_width`,
+    value: boxWidth,
+  },
+  {
+    ownerId: variantAdminGraphQLId,
+    namespace: "custom",
+    key: `package_length`,
+    value: boxDepth,
+  },
+  {
+    ownerId: variantAdminGraphQLId,
+    namespace: "custom",
+    key: `package_height`,
+    value: boxHeight,
+  }]
+
 
   const mutationResponse = await makeRequest(
     shopifyGraphEndpoint,
