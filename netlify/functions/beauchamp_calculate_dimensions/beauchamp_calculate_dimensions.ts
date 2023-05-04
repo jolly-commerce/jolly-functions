@@ -51,8 +51,6 @@ export const handler: Handler = async (event, context) => {
     JSON.stringify({ query: queryBody })
   );
 
- 
-
   const productTags = getProductTags(productData);
   const { productHeight, productWidth } = getProductDimensions(productData);
   const { boxDepth, boxHeight, boxWidth } = findBestBox({
@@ -66,14 +64,14 @@ export const handler: Handler = async (event, context) => {
     return {
       statusCode: 400,
       body: JSON.stringify({
-         err: "no box depth",
+        err: "no box depth",
         productData,
         product,
         queryBody,
-        typeof: typeof product,
-        t: typeof product.admin_graphql_api_id,
-        k: product.admin_graphql_api_id,
-        }),
+        productHeight,
+        productWidth,
+        productTags,
+      }),
 
       headers: {
         "Content-Type": "application/json",
