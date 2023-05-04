@@ -1,5 +1,6 @@
 import { Handler } from "@netlify/functions";
 import * as https from "https";
+import { Type } from "typescript";
 
 export const handler: Handler = async (event, context) => {
   const SHOPIFY_ACCESS_TOKEN = process.env.SHOPIFY_ACCESS_TOKEN;
@@ -41,7 +42,7 @@ export const handler: Handler = async (event, context) => {
     }
   }`;
 
-  const productData = await makeRequest(
+  const shopifyData: any = await makeRequest(
     shopifyGraphEndpoint,
     "POST",
     {
@@ -51,6 +52,8 @@ export const handler: Handler = async (event, context) => {
     JSON.stringify({ query: queryBody })
   );
 
+
+  const productData = shopifyData.data.product
   const productTags = getProductTags(productData);
   const { productHeight, productWidth } = getProductDimensions(productData);
   const { boxDepth, boxHeight, boxWidth } = findBestBox({
@@ -204,6 +207,7 @@ function getProductTags(productJson) {
   ) {
     return [];
   }
+ 
 
   const tags = productJson.tags;
 
@@ -337,4 +341,155 @@ function makeRequest(url, method, headers = {}, body?: any) {
 
     req.end();
   });
+}
+jj().
+function jj() {
+  return {
+    err: "no box depth",
+    productData: {
+      data: {
+        product: {
+          id: "gid://shopify/Product/7980819087608",
+          title: "Jezu",
+          tags: ["_Boîte Simple", "Contemporain", "Figuratif"],
+          variants: {
+            edges: [
+              {
+                node: {
+                  id: "gid://shopify/ProductVariant/43777310654712",
+                },
+              },
+            ],
+          },
+          metafields: {
+            edges: [
+              {
+                node: {
+                  id: "gid://shopify/Metafield/23912457076984",
+                  key: "height",
+                  namespace: "syncmaestro",
+                  value: "24",
+                  type: "single_line_text_field",
+                },
+              },
+              {
+                node: {
+                  id: "gid://shopify/Metafield/23912457109752",
+                  key: "width",
+                  namespace: "syncmaestro",
+                  value: "18",
+                  type: "single_line_text_field",
+                },
+              },
+              {
+                node: {
+                  id: "gid://shopify/Metafield/23912457142520",
+                  key: "depth",
+                  namespace: "syncmaestro",
+                  value: "0",
+                  type: "single_line_text_field",
+                },
+              },
+              {
+                node: {
+                  id: "gid://shopify/Metafield/23912457175288",
+                  key: "gallery",
+                  namespace: "syncmaestro",
+                  value: "Galerie Beauchamp (BA)",
+                  type: "single_line_text_field",
+                },
+              },
+              {
+                node: {
+                  id: "gid://shopify/Metafield/23912457208056",
+                  key: "title_tag",
+                  namespace: "global",
+                  value: "Éclat de vie de Zïlon",
+                  type: "single_line_text_field",
+                },
+              },
+              {
+                node: {
+                  id: "gid://shopify/Metafield/23912457240824",
+                  key: "medium",
+                  namespace: "syncmaestro",
+                  value: "Mixtes sur papier",
+                  type: "single_line_text_field",
+                },
+              },
+              {
+                node: {
+                  id: "gid://shopify/Metafield/23912457273592",
+                  key: "categorie",
+                  namespace: "syncmaestro",
+                  value: "Figuratif",
+                  type: "single_line_text_field",
+                },
+              },
+              {
+                node: {
+                  id: "gid://shopify/Metafield/23912457306360",
+                  key: "style",
+                  namespace: "syncmaestro",
+                  value: "Contemporain",
+                  type: "single_line_text_field",
+                },
+              },
+            ],
+          },
+        },
+      },
+      extensions: {
+        cost: {
+          requestedQueryCost: 27,
+          actualQueryCost: 14,
+          throttleStatus: {
+            maximumAvailable: 2000,
+            currentlyAvailable: 1986,
+            restoreRate: 100,
+          },
+        },
+      },
+    },
+    product: {
+      id: 7980819087608,
+      variants: [
+        {
+          id: 43777310654712,
+          product_id: 7980819087608,
+          title: "Default Title",
+          price: "1425.00",
+          sku: "b13912",
+          position: 1,
+          inventory_policy: "deny",
+          compare_at_price: null,
+          fulfillment_service: "manual",
+          inventory_management: null,
+          option1: "Default Title",
+          option2: null,
+          option3: null,
+          created_at: "2023-04-15T11:02:04-04:00",
+          updated_at: "2023-05-02T10:01:04-04:00",
+          taxable: true,
+          barcode: null,
+          grams: 0,
+          image_id: null,
+          weight: 0,
+          weight_unit: "kg",
+          inventory_item_id: 45873206198520,
+          inventory_quantity: 0,
+          old_inventory_quantity: 0,
+          requires_shipping: true,
+          admin_graphql_api_id: "gid://shopify/ProductVariant/43777310654712",
+        },
+      ],
+      tags: "_Boîte Simple, Contemporain, Figuratif",
+      admin_graphql_api_id: "gid://shopify/Product/7980819087608",
+    },
+    queryBody:
+      '\n  query {\n    product(id: "gid://shopify/Product/7980819087608") {\n      id\n      title\n      tags\n      variants(first: 2) {\n        edges {\n          node {\n            id\n          }\n        }\n      }\n      metafields(first: 20) {\n        edges {\n          node {\n            id\n            key\n            namespace\n            value\n            type\n          }\n        }\n      }\n    }\n  }',
+    productHeight: null,
+    productWidth: null,
+    productTags: [],
+  };
 }
