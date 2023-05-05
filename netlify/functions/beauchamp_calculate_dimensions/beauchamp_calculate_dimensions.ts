@@ -13,8 +13,8 @@ export const handler: Handler = async (event, context) => {
       body: JSON.stringify({ err: "no body :( " }),
     };
   }
-  const product = JSON.parse(JSON.parse(event.body));
-
+  const product = JSON.parse(event.body);
+  console.log(JSON.stringify({product}))
   const queryBody = `
   query {
     product(id: "${product.admin_graphql_api_id}") {
