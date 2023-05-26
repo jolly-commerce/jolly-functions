@@ -3,7 +3,7 @@ import * as https from "https";
 import { Type } from "typescript";
 
 export const handler: Handler = async (event, context) => {
-  const SHOPIFY_ACCESS_TOKEN = process.env.SHOPIFY_ACCESS_TOKEN;
+  const SHOPIFY_ACCESS_TOKEN = process.env.BEAUCHAMP_SHOPIFY_ACCESS_TOKEN;
 
   const shopifyGraphEndpoint =
     "https://galeriebeauchamp.myshopify.com/admin/api/2023-04/graphql.json";
