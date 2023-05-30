@@ -26,7 +26,7 @@ export const handler: Handler = async (event, context) => {
         inventoryLevels(first: 10) {
           edges {
             node {
-              quantities(name:"available") {
+              quantities(names:"available") {
                 name
                 quantity
               }
