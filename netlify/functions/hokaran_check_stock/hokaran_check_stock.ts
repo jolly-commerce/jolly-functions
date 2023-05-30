@@ -96,7 +96,7 @@ try {
 
   return {
     statusCode: 200,
-    body: JSON.stringify({ stock: stockAvailable }),
+    body: JSON.stringify({ stock: stockAvailable, body, shopifyData }),
   };
   } catch (err) {
     return {
