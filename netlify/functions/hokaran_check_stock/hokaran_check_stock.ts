@@ -53,7 +53,7 @@ export const handler: Handler = async (event, context) => {
   if (!shopifyData || !shopifyData.data || !shopifyData.data.productVariant) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ err: "Invalid response from Shopify", body }),
+      body: JSON.stringify({ err: "Invalid response from Shopify", body, shopifyData}),
     };
   }
 
