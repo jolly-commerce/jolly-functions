@@ -72,11 +72,13 @@ export const handler: Handler = async (event, context) => {
   }
 
   let stockAvailable = null;
+try {
+
 
   for (let edge of inventoryItem.inventoryLevels.edges) {
     const node = edge.node;
     if (node.location && node.location.id === LOCATION_ID) {
-      stockAvailable = node.quantities.find(
+      stockAvailable = node?.quantities?.find(
         (q) => q.name === "available"
       )?.quantity;
       break;
@@ -96,6 +98,13 @@ export const handler: Handler = async (event, context) => {
     statusCode: 200,
     body: JSON.stringify({ stock: stockAvailable }),
   };
+  } catch (err) {
+    return {
+    statusCode: 500,
+    body: JSON.stringify({ err,  body, shopifyData  }),
+
+    }
+  }
 };
 
 function makeRequest(url, method, headers = {}, body?: any) {
