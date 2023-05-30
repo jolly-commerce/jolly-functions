@@ -5,7 +5,7 @@ import { Type } from "typescript";
 export const handler: Handler = async (event, context) => {
   const SHOPIFY_ACCESS_TOKEN = process.env.HOKARAN_SHOPIFY_ACCESS_TOKEN;
   const LOCATION_ID = "gid://shopify/Location/5907972207";
-
+//
   const shopifyGraphEndpoint =
     "https://hokaran.myshopify.com/admin/api/2023-04/graphql.json";
   if (!event.body) {
