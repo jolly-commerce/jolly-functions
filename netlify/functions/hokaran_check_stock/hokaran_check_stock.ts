@@ -10,6 +10,9 @@ export const handler: Handler = async (event, context) => {
     "https://hokaran.myshopify.com/admin/api/2023-04/graphql.json";
   if (!event.body) {
     return {
+      headers: {
+        "Access-Control-Allow-Origin": "*"
+      },
       statusCode: 400,
       body: JSON.stringify({ err: "no body :( " }),
     };
