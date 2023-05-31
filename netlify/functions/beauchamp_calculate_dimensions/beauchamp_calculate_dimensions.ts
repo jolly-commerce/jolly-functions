@@ -46,6 +46,7 @@ export const handler: Handler = async (event, context) => {
     shopifyGraphEndpoint,
     "POST",
     {
+      "Access-Control-Allow-Origin": "*",
       "Content-Type": "application/json",
       "X-Shopify-Access-Token": SHOPIFY_ACCESS_TOKEN, // Replace with your actual access token
     },

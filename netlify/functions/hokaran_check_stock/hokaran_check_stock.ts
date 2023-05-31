@@ -56,6 +56,9 @@ export const handler: Handler = async (event, context) => {
   if (!shopifyData || !shopifyData.data || !shopifyData.data.productVariant) {
     return {
       statusCode: 500,
+      headers: {
+        "Access-Control-Allow-Origin": "*"
+      },
       body: JSON.stringify({ err: "Invalid response from Shopify", body, shopifyData}),
     };
   }
@@ -69,6 +72,9 @@ export const handler: Handler = async (event, context) => {
     !inventoryItem.inventoryLevels.edges
   ) {
     return {
+      headers: {
+        "Access-Control-Allow-Origin": "*"
+      },
       statusCode: 500,
       body: JSON.stringify({ err: "No inventory data available" }),
     };
@@ -90,6 +96,9 @@ try {
 
   if (stockAvailable === null) {
     return {
+      headers: {
+        "Access-Control-Allow-Origin": "*"
+      },
       statusCode: 404,
       body: JSON.stringify({
         err: "No stock data available for the specified location",
@@ -99,10 +108,16 @@ try {
 
   return {
     statusCode: 200,
+    headers: {
+      "Access-Control-Allow-Origin": "*"
+    },
     body: JSON.stringify({ stock: stockAvailable, body, shopifyData }),
   };
   } catch (err) {
     return {
+      headers: {
+        "Access-Control-Allow-Origin": "*"
+      },
     statusCode: 500,
     body: JSON.stringify({ err,  body, shopifyData  }),
 
