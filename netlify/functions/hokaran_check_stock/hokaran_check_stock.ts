@@ -3,6 +3,22 @@ import * as https from "https";
 import { Type } from "typescript";
 
 export const handler: Handler = async (event, context) => {
+
+  const CORS_HEADERS = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': '*',
+  };
+  
+  if (event.httpMethod === 'OPTIONS') {
+    console.log('OPTIONS ', { CORS_HEADERS });
+    return {
+      statusCode: 200,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ message: 'Successful preflight call.' }),
+    };
+  }
+  
   const SHOPIFY_ACCESS_TOKEN = process.env.HOKARAN_SHOPIFY_ACCESS_TOKEN;
   const LOCATION_ID = "gid://shopify/Location/5907972207";
 //
