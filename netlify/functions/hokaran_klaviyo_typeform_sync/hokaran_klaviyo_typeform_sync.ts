@@ -1,5 +1,5 @@
 import { Handler } from "@netlify/functions";
-const axios = require('axios');
+// const axios = require('axios');
 
 exports.handler = async function (event, context) {
   // Parse the Typeform webhook payload
@@ -36,12 +36,12 @@ console.log(JSON.stringify(payload))
 
   // Send the data to Klaviyo
   try {
-    const response = await axios.post('KLAVIYO_ENDPOINT', klaviyoPayload, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer YOUR_KLAVIYO_API_KEY`
-      }
-    });
+    // const response = await axios.post('KLAVIYO_ENDPOINT', klaviyoPayload, {
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     'Authorization': `Bearer YOUR_KLAVIYO_API_KEY`
+    //   }
+    // });
 
     return {
       statusCode: 200,
