@@ -1,59 +1,71 @@
-import { Handler } from "@netlify/functions";
-// const axios = require('axios');
+import { URLSearchParams } from "url";
+import fetch from "node-fetch";
+const encodedParams = new URLSearchParams();
 
 exports.handler = async function (event, context) {
   // Parse the Typeform webhook payload
   const CORS_HEADERS = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': '*',
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "*",
   };
-  
-  if (event.httpMethod === 'OPTIONS') {
-    console.log('OPTIONS ', { CORS_HEADERS });
+
+  if (event.httpMethod === "OPTIONS") {
+    console.log("OPTIONS ", { CORS_HEADERS });
     return {
       statusCode: 200,
       headers: CORS_HEADERS,
-      body: JSON.stringify({ message: 'Successful preflight call.' }),
+      body: JSON.stringify({ message: "Successful preflight call." }),
     };
   }
   const payload = JSON.parse(event.body);
-console.log(JSON.stringify(payload))
-//   // Extract answers and map them to Klaviyo attributes
-//   const attributes = payload.form_response.answers.reduce((acc, answer) => {
-//     acc[answer.field.title] = answer[answer.type];
-//     return acc;
-//   }, {});
+  const variables = payload.form_response.variables;
+  const email = extractEmail(payload)
+  // Prepare the data for Klaviyo
+  const klaviyoData = variables.reduce((acc, variable) => {
+    acc[`diag_antidotes_${variable.key}`] = variable.text || variable.number;
+    return acc;
+  }, {});
 
-//   // Extract variables and map them to Klaviyo event properties
-//   const eventProperties = payload.form_response.hidden;
 
-//   // Construct the Klaviyo API payload
-//   const klaviyoPayload = {
-//     attributes,
-//     eventProperties
-//   };
+  encodedParams.set(
+    "data",
+    JSON.stringify({"token": process.env.HOKARAN_KLAVIYO_PUBLIC_KEY,"properties": {"$email": email, ...klaviyoData}})
+  );
 
-  // Send the data to Klaviyo
+  const url = "https://a.klaviyo.com/api/identify";
+  const options = {
+    method: "POST",
+    headers: {
+      accept: "text/html",
+      "content-type": "application/x-www-form-urlencoded",
+    },
+    body: encodedParams,
+  };
+
+  fetch(url, options)
+    .then((res) => res.json())
+    .then((json) => console.log(json))
+    .catch((err) => console.error("error:" + err));
   try {
-    // const response = await axios.post('KLAVIYO_ENDPOINT', klaviyoPayload, {
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'Authorization': `Bearer YOUR_KLAVIYO_API_KEY`
-    //   }
-    // });
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ success: true })
+      body: JSON.stringify({ success: true }),
     };
   } catch (error) {
-    console.error('Failed to sync to Klaviyo:', error);
+    console.error("Failed to sync to Klaviyo:", error);
 
     return {
       statusCode: 500,
-      body: JSON.stringify({ success: false })
+      body: JSON.stringify({ success: false }),
     };
   }
 };
 
+
+function extractEmail(payload) {
+    const answers = payload.form_response.answers;
+    const emailAnswer = answers.find(answer => answer.type === 'email');
+    return emailAnswer ? emailAnswer.email : null;
+  }
