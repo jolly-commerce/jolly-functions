@@ -32,7 +32,7 @@ const klaviyoBody = JSON.stringify({data: {"token": process.env.HOKARAN_KLAVIYO_
 
   encodedParams.set(
     "data",
-    JSON.stringify({"token": process.env.HOKARAN_KLAVIYO_PUBLIC_KEY,"properties": {"$email": email, ...klaviyoData}})
+    JSON.stringify({"token": process.env.HOKARAN_KLAVIYO_PUBLIC_KEY,"properties": {"$email": 'mehdi@jollycommerce.io', ...klaviyoData}})
   );
 
   const url = "https://a.klaviyo.com/api/identify";
