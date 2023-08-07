@@ -20,19 +20,31 @@ exports.handler = async function (event, context) {
   }
   const payload = JSON.parse(event.body);
   const variables = payload.form_response.variables;
-  const email = extractEmail(payload)
+  const email = extractEmail(payload);
   // Prepare the data for Klaviyo
   const klaviyoData = variables.reduce((acc, variable) => {
     acc[`diag_antidotes_${variable.key}`] = variable.text || variable.number;
     return acc;
   }, {});
 
-
-const klaviyoBody = JSON.stringify({data: {"token": process.env.HOKARAN_KLAVIYO_PUBLIC_KEY,"properties": {"$email": "kevin@jollycommerce.io", ...klaviyoData}}})
+  const klaviyoBody = JSON.stringify({
+    data: {
+      token: process.env.HOKARAN_KLAVIYO_PUBLIC_KEY,
+      properties: { $email: "kevin@jollycommerce.io", ...klaviyoData },
+    },
+  });
 
   encodedParams.set(
     "data",
-    JSON.stringify({"token": process.env.HOKARAN_KLAVIYO_PUBLIC_KEY,"properties": {"$email": 'leonid@jollycommerce.io', ...klaviyoData}})
+    JSON.stringify({
+      token: process.env.HOKARAN_KLAVIYO_PUBLIC_KEY,
+      properties: {
+        $email: "leonid@jollycommerce.io",
+        $first_name: "leonid",
+        $last_name: "duhler",
+        ...klaviyoData,
+      },
+    })
   );
 
   const url = "https://a.klaviyo.com/api/identify";
@@ -44,16 +56,15 @@ const klaviyoBody = JSON.stringify({data: {"token": process.env.HOKARAN_KLAVIYO_
     },
     body: encodedParams,
   };
-let json
+  let json;
   await fetch(url, options)
     .then((res) => res.json())
     .then((_json) => {
-        console.log(_json)
-        json = _json
+      console.log(_json);
+      json = _json;
     })
     .catch((err) => console.error("error:" + err));
   try {
-
     return {
       statusCode: 200,
       body: JSON.stringify({ success: true, json, klaviyoBody }),
@@ -68,9 +79,8 @@ let json
   }
 };
 
-
 function extractEmail(payload) {
-    const answers = payload.form_response.answers;
-    const emailAnswer = answers.find(answer => answer.type === 'email');
-    return emailAnswer ? emailAnswer.email : null;
-  }
+  const answers = payload.form_response.answers;
+  const emailAnswer = answers.find((answer) => answer.type === "email");
+  return emailAnswer ? emailAnswer.email : null;
+}
