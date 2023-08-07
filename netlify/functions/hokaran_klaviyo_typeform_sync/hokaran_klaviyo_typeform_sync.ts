@@ -42,16 +42,19 @@ exports.handler = async function (event, context) {
     },
     body: encodedParams,
   };
-
+let json
   await fetch(url, options)
     .then((res) => res.json())
-    .then((json) => console.log(json))
+    .then((_json) => {
+        console.log(_json)
+        json = _json
+    })
     .catch((err) => console.error("error:" + err));
   try {
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ success: true }),
+      body: JSON.stringify({ success: true, json }),
     };
   } catch (error) {
     console.error("Failed to sync to Klaviyo:", error);
