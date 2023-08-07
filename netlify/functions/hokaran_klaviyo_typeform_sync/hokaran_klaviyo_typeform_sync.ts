@@ -28,10 +28,7 @@ exports.handler = async function (event, context) {
   }, {});
 
 
-  encodedParams.set(
-    "data",
-    JSON.stringify({"token": process.env.HOKARAN_KLAVIYO_PUBLIC_KEY,"properties": {"$email": email, ...klaviyoData}})
-  );
+const klaviyoBody = JSON.stringify({data: {"token": process.env.HOKARAN_KLAVIYO_PUBLIC_KEY,"properties": {"$email": email, ...klaviyoData}}})
 
   const url = "https://a.klaviyo.com/api/identify";
   const options = {
@@ -40,7 +37,7 @@ exports.handler = async function (event, context) {
       accept: "text/html",
       "content-type": "application/x-www-form-urlencoded",
     },
-    body: encodedParams,
+    body: klaviyoBody,
   };
 let json
   await fetch(url, options)
@@ -54,7 +51,7 @@ let json
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ success: true, json }),
+      body: JSON.stringify({ success: true, json, klaviyoBody }),
     };
   } catch (error) {
     console.error("Failed to sync to Klaviyo:", error);
