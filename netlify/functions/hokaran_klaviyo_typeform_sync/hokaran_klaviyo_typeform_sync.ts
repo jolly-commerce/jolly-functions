@@ -39,9 +39,10 @@ exports.handler = async function (event, context) {
     JSON.stringify({
       token: process.env.HOKARAN_KLAVIYO_PUBLIC_KEY,
       properties: {
-        $email: "leonid@jollycommerce.io",
-        $first_name: "leonid",
-        $last_name: "duhler",
+        $email: email,
+        $first_name: email.split("@")[0],
+        $last_name: "antidote",
+        $consent: ['sms', 'email'],
         ...klaviyoData,
       },
     })
