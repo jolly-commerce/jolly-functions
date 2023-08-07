@@ -28,7 +28,7 @@ exports.handler = async function (event, context) {
   }, {});
 
 
-const klaviyoBody = JSON.stringify({data: {"token": process.env.HOKARAN_KLAVIYO_PUBLIC_KEY,"properties": {"$email": email, ...klaviyoData}}})
+const klaviyoBody = JSON.stringify({data: {"token": process.env.HOKARAN_KLAVIYO_PUBLIC_KEY,"properties": {"$email": "kevin@jollycommerce.io", ...klaviyoData}}})
 
   encodedParams.set(
     "data",
