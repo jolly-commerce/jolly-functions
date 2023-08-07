@@ -30,6 +30,11 @@ exports.handler = async function (event, context) {
 
 const klaviyoBody = JSON.stringify({data: {"token": process.env.HOKARAN_KLAVIYO_PUBLIC_KEY,"properties": {"$email": email, ...klaviyoData}}})
 
+  encodedParams.set(
+    "data",
+    JSON.stringify({"token": process.env.HOKARAN_KLAVIYO_PUBLIC_KEY,"properties": {"$email": email, ...klaviyoData}})
+  );
+
   const url = "https://a.klaviyo.com/api/identify";
   const options = {
     method: "POST",
@@ -37,7 +42,7 @@ const klaviyoBody = JSON.stringify({data: {"token": process.env.HOKARAN_KLAVIYO_
       accept: "text/html",
       "content-type": "application/x-www-form-urlencoded",
     },
-    body: klaviyoBody,
+    body: encodedParams,
   };
 let json
   await fetch(url, options)
