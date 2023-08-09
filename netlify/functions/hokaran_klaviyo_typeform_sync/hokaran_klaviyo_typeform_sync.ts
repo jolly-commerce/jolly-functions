@@ -24,7 +24,13 @@ exports.handler = async function (event, context) {
   const questionsAndAnswers = extractQuestionsAndAnswers(payload);
   // Prepare the data for Klaviyo
   const klaviyoData = variables.reduce((acc, variable) => {
-    acc[`diag_antidotes_${variable.key}`] = variable.text || variable.number;
+    if (variable.key.includes("_gouttes")) {
+      // special case
+      acc[`diag_antidotes_${variable.key}`] = Math.ceil(variable.number);
+    } else {
+      acc[`diag_antidotes_${variable.key}`] = variable.text || variable.number;
+
+    }
     return acc;
   }, {});
 
