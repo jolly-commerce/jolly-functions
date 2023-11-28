@@ -30,6 +30,7 @@ export const handler: Handler = async (event, context) => {
     return getResponse(400, { err: "no body :( " });
   }
   const body = JSON.parse(event.body);
+  console.log("request body : " , JSON.stringify(body))
   let company: Company | null;
   let customer: Contact | null;
 
@@ -70,8 +71,8 @@ export const handler: Handler = async (event, context) => {
     if (hasNoMatchingCompanies) {
       // No matching company : let's create it and assign customer
       const createResponse = await graphQLRequest_createCompany(company);
-      company = createResponse.companyCreate.company as any;
-      console.log(JSON.stringify(createResponse));
+      console.log("CreateResponse: ",JSON.stringify(createResponse));
+      company = createResponse.data.companyCreate.company as any;
     } else {
       console.log(JSON.stringify(companiesAndContacts))
       company = companiesAndContacts[0].company
@@ -113,6 +114,7 @@ async function graphQLRequest_getCompaniesWithSameName(company: string) {
   return makeGraphQLRequest<any>(body);
 }
 async function graphQLRequest_createCompany(company: Company) {
+  console.log(`GraphQL request : createCompany : ${JSON.stringify(company)}`)
   const mutation = `
         mutation companyCreate($input: CompanyCreateInput!) {
             companyCreate(input: $input) {
@@ -168,7 +170,7 @@ async function graphQLRequest_assignCustomerAsContact(
             }
           }
           `;
-  const variables = { companyId: `${company.id}`, customerId: `gid://shopify/Customer/7360647102803` };
+  const variables = { companyId: `${company.id}`, customerId: `gid://shopify/Customer/${customer.id}` };
 
   return makeGraphQLRequest<any>(mutation, variables);
 }
