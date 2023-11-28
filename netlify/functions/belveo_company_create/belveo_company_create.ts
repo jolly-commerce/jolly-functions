@@ -30,7 +30,7 @@ export const handler: Handler = async (event, context) => {
     return getResponse(400, { err: "no body :( " });
   }
   const body = JSON.parse(event.body);
-  console.log("request body : " , JSON.stringify(body))
+  console.log("request body : ", JSON.stringify(body));
   let company: Company | null;
   let customer: Contact | null;
 
@@ -39,7 +39,8 @@ export const handler: Handler = async (event, context) => {
     company = extractCompany(body);
     customer = extractCustomer(body);
   } catch (error) {
-    return getResponse(400, { err: "body has wrong format" });
+    console.log(error);
+    return getResponse(500, { err: "body has wrong format" });
   }
 
   if (!company) {
@@ -48,6 +49,7 @@ export const handler: Handler = async (event, context) => {
   }
   if (!customer) {
     // should not happen, something wrong
+    console.log("could not find customer from order");
     return getResponse(400, { err: "could not find customer from order" });
   }
 
@@ -55,7 +57,7 @@ export const handler: Handler = async (event, context) => {
   const shopifyData = await graphQLRequest_getCompaniesWithSameName(
     company.name
   );
-  console.log("here", JSON.stringify(shopifyData))
+  console.log("here", JSON.stringify(shopifyData));
   // Handle the GraphQL response
   if (!shopifyData || !shopifyData.data) {
     return getResponse(500, {
@@ -71,15 +73,20 @@ export const handler: Handler = async (event, context) => {
     if (hasNoMatchingCompanies) {
       // No matching company : let's create it and assign customer
       const createResponse = await graphQLRequest_createCompany(company);
-      console.log("CreateResponse: ",JSON.stringify(createResponse));
+      console.log("CreateResponse: ", JSON.stringify(createResponse));
       company = createResponse.data.companyCreate.company as any;
     } else {
-      console.log(JSON.stringify(companiesAndContacts))
-      company = companiesAndContacts[0].company
+      console.log(JSON.stringify(companiesAndContacts));
+      company = companiesAndContacts[0].company;
     }
 
-    const assignCustomerResponse = await graphQLRequest_assignCustomerAsContact(customer, company as Company);
-    console.log(`assignCustomerResponse : ${JSON.stringify(assignCustomerResponse)}`)
+    const assignCustomerResponse = await graphQLRequest_assignCustomerAsContact(
+      customer,
+      company as Company
+    );
+    console.log(
+      `assignCustomerResponse : ${JSON.stringify(assignCustomerResponse)}`
+    );
     return getResponse(200);
   } catch (err) {
     console.log(err);
@@ -114,7 +121,7 @@ async function graphQLRequest_getCompaniesWithSameName(company: string) {
   return makeGraphQLRequest<any>(body);
 }
 async function graphQLRequest_createCompany(company: Company) {
-  console.log(`GraphQL request : createCompany : ${JSON.stringify(company)}`)
+  console.log(`GraphQL request : createCompany : ${JSON.stringify(company)}`);
   const mutation = `
         mutation companyCreate($input: CompanyCreateInput!) {
             companyCreate(input: $input) {
@@ -170,7 +177,10 @@ async function graphQLRequest_assignCustomerAsContact(
             }
           }
           `;
-  const variables = { companyId: `${company.id}`, customerId: `gid://shopify/Customer/${customer.id}` };
+  const variables = {
+    companyId: `${company.id}`,
+    customerId: `gid://shopify/Customer/${customer.id}`,
+  };
 
   return makeGraphQLRequest<any>(mutation, variables);
 }
@@ -225,70 +235,77 @@ function extractCompaniesAndContacts(graphQLResponse): CompanyContact[] {
 
 function extractCustomer(data: any): Contact | null {
   if (!data || typeof data !== "object") {
+    console.log("extractCustomer: has no data");
     return null;
   }
 
   const customer = data.customer;
-  const shippingAddress = data.shipping_address;
+  const address = data.billing_address;
 
   if (
     customer &&
     typeof customer === "object" &&
-    shippingAddress &&
-    typeof shippingAddress === "object"
+    address &&
+    typeof address === "object"
   ) {
     const contactAddress: Address = {
-      address1: shippingAddress.address1,
-      city: shippingAddress.city,
-      countryCode: shippingAddress.country_code,
-      phone: shippingAddress.phone,
-      recipient: shippingAddress.name,
-      zip: shippingAddress.zip,
+      address1: address.address1,
+      city: address.city,
+      countryCode: address.country_code,
+      phone: address.phone,
+      recipient: address.name,
+      zip: address.zip,
       // Optional fields
-      address2: shippingAddress.address2 || undefined,
-      zoneCode: shippingAddress.province_code || undefined,
+      address2: address.address2 || undefined,
+      zoneCode: address.province_code || undefined,
     };
 
     // Assuming email, firstName, lastName, and locale are required fields
     if (
-      typeof customer.email === "string" &&
       typeof customer.first_name === "string" &&
       typeof customer.last_name === "string" &&
       typeof data.customer_locale === "string"
     ) {
-      return {
+      return _getObjectWithoutEmptyProperties({
         id: customer.id,
-        email: customer.email,
+        email: customer.email || undefined,
         firstName: customer.first_name,
         lastName: customer.last_name,
         locale: data.customer_locale,
-        phone: shippingAddress.phone,
+        phone: address.phone || undefined,
         address: contactAddress,
-      };
+      });
     }
   }
 
   return null;
 }
 
+function _getObjectWithoutEmptyProperties<T extends Object>(object: T): T {
+  let result = {} as T;
+  Object.keys(object).forEach((key) =>
+    object[key] ? (result[key] = object[key]) : null
+  );
+  return result;
+}
 function extractCompany(data: any): Company | null {
-  if (!data || typeof data !== "object" || !data.shipping_address) {
+  if (!data || typeof data !== "object" || !data.billing_address) {
     return null;
   }
 
-  const shippingAddress = data.shipping_address;
-  if (typeof shippingAddress === "object") {
+  const address = data.billing_address;
+  if (typeof address === "object") {
     const companyAddress: CompanyAddress = {
-      address1: shippingAddress.address1,
+      address1: address.address1,
       // address2: shippingAddress.address2 || '',
-      city: shippingAddress.city,
-      countryCode: shippingAddress.country_code,
-      phone: shippingAddress.phone || "",
+      city: address.city,
+      countryCode: address.country_code,
+      phone: address.phone || "",
       //  recipient: shippingAddress.recipient || '',
     };
 
     return {
-      name: shippingAddress.company,
+      name: address.company,
       address: companyAddress,
     };
   }
