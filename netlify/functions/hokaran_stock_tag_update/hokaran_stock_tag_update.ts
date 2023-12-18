@@ -16,10 +16,44 @@ const BOUTIQUE_PARIS_LOCATION_ID = "gid://shopify/Location/61019750511";
 const FRENCH_LOG_LOCATION_ID = "gid://shopify/Location/5907972207";
 
 // Interfaces defining data structures
+interface Location {
+  id: string;
+  name: string;
+}
+
+interface Quantity {
+  quantity: number;
+}
+
+interface ParsedData {
+  [variantId: string]: {
+    [locationId: string]: number;
+  };
+}
+
 interface InventoryLevelNode {
   node: {
     location: Location;
     quantities: Quantity[];
+  };
+}
+
+interface InventoryLevels {
+  edges: InventoryLevelNode[];
+}
+
+interface InventoryItem {
+  inventoryLevels: InventoryLevels;
+}
+
+interface Variant {
+  id: string;
+  inventoryItem: InventoryItem;
+}
+
+interface Data {
+  inventoryItem: {
+    variant: Variant;
   };
 }
 
@@ -55,51 +89,9 @@ interface VariantMetafieldUpdateResponse {
   };
 }
 
-interface ParsedData {
-  [variantId: string]: {
-    [locationId: string]: number;
-  };
-}
-
-interface Quantity {
-  quantity: number;
-}
-
-interface Location {
-  id: string;
-  name: string;
-}
-
-interface InventoryLevelNode {
-  node: {
-    location: Location;
-    quantities: Quantity[];
-  };
-}
-
-interface InventoryLevels {
-  edges: InventoryLevelNode[];
-}
-
-interface InventoryItem {
-  inventoryLevels: InventoryLevels;
-}
-
-interface Variant {
-  id: string;
-  inventoryItem: InventoryItem;
-}
-
-interface Data {
-  inventoryItem: {
-    variant: Variant;
-  };
-}
-
 interface InventoryItemResponse {
   data: Data;
 }
-
 
 // Netlify serverless function handler
 export const handler: Handler = async (event, context) => {
