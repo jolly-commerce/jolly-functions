@@ -242,7 +242,7 @@ async function updateVariantMetafield(parsedData: ParsedData): Promise<VariantMe
         }
       }
     }`;
-
+    console.log("getting variant metafields of variant ", variantId)
   const getVariantMetafieldResponse: VariantMetafieldResponse = await makeGraphQLRequest(getVariantQuery);
 
   const metafieldObj = getVariantMetafieldResponse.data.productVariant?.metafield;
@@ -267,7 +267,7 @@ async function updateVariantMetafield(parsedData: ParsedData): Promise<VariantMe
         ],
     },
   };
-
+  console.log("update or create metafield with data", JSON.stringify(variables))
   // update it or create metafield
   const updateMetafield: VariantMetafieldUpdateResponse = await makeGraphQLRequest(body, variables);
 
