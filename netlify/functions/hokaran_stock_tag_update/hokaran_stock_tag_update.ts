@@ -123,8 +123,20 @@ export const handler: Handler = async (event, context) => {
   }
   const body = JSON.parse(event.body);
   console.log("Data received : ", event.body)
- 
+
+
   // Event body for testing (you need to put admin_graphql_api_id, it's inventoryItem id)
+
+
+  // const body = {
+  //   inventory_item_id: 49266231345492,
+  //   location_id: 5907972207,
+  //   available: 155,
+  //   updated_at: "2023-12-19T14:34:25+01:00",
+  //   admin_graphql_api_id:
+  //     "gid://shopify/InventoryLevel/5490049135?inventory_item_id=49266231345492",
+  // };
+
   // const body = {
   //   id: 271878346596884000,
   //   created_at: "2023-12-13T11:49:24+01:00",
@@ -148,7 +160,8 @@ export const handler: Handler = async (event, context) => {
 
   try {
     // * Retrieve variant ID from InventoryItem ID
-    const variantIdJSON: InventoryItemResponse = await getVariantId(body.admin_graphql_api_id);
+    // const variantIdJSON: InventoryItemResponse = await getVariantId(body.admin_graphql_api_id);
+    const variantIdJSON: InventoryItemResponse = await getVariantId("gid://shopify/InventoryItem/" + body.inventory_item_id);
 
     // * Retrieve all inventory levels of this variant
     const parsedVariantIdJSON: ParsedData = getParsedData(variantIdJSON);
@@ -242,7 +255,7 @@ async function updateVariantMetafield(parsedData: ParsedData): Promise<VariantMe
         }
       }
     }`;
-    console.log("getting variant metafields of variant ", variantId)
+  console.log("getting variant metafields of variant ", variantId)
   const getVariantMetafieldResponse: VariantMetafieldResponse = await makeGraphQLRequest(getVariantQuery);
 
   const metafieldObj = getVariantMetafieldResponse.data.productVariant?.metafield;
