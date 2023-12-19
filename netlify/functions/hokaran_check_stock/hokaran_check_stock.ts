@@ -1,6 +1,5 @@
 import { Handler } from "@netlify/functions";
 import * as https from "https";
-import { Type } from "typescript";
 
 export const handler: Handler = async (event, context) => {
 
@@ -34,6 +33,9 @@ export const handler: Handler = async (event, context) => {
     };
   }
   const body = JSON.parse(event.body);
+
+  console.log(JSON.stringify(body))
+
 
   const queryBody = `
   {
