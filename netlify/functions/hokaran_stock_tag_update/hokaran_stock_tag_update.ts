@@ -122,7 +122,8 @@ export const handler: Handler = async (event, context) => {
     };
   }
   const body = JSON.parse(event.body);
-
+  console.log("Data received : ", event.body)
+ 
   // Event body for testing (you need to put admin_graphql_api_id, it's inventoryItem id)
   // const body = {
   //   id: 271878346596884000,
@@ -159,6 +160,7 @@ export const handler: Handler = async (event, context) => {
     return getResponse(200, parsedVariantIdJSON);
   } catch (error) {
     // catch error
+    console.log(error)
     const errorResponse = getResponse(500, { error: `${error}` });
     return errorResponse;
   }
