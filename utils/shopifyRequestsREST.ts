@@ -9,8 +9,10 @@ export async function makeRESTShopifyRequest<T>(
     body?: Object,
   ): Promise<T> {
     const { SHOPIFY_ACCESS_TOKEN, shopifyDomain } = config;
+    const orderID_string = 'gid://shopify/Order/'
+    const clean_id = id.replace(orderID_string, "") 
     return (await makeRequest(
-      `${shopifyDomain}/admin/api/2023-10/${domain}/${id}/${subdomain}`,
+      `${shopifyDomain}/admin/api/2023-10/${domain}/${clean_id}/${subdomain}`,
       method,
       {
         "Content-Type": "application/json",
