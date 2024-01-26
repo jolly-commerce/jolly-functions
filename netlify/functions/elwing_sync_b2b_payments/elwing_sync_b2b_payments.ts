@@ -129,7 +129,7 @@ export const handler: Handler = async (event, context) => {
     // Create new transaction linked to main transaction
     const createTransactionResult = await Shopify_createOrderTransaction(config, order.id, {
       kind: "capture",
-      amount: paymentInfo.payments.amount.toString(),
+      amount: parseFloat(paymentInfo.payments.amount as any) / 100,
       parent_id: getTransactionsResponse.transactions.find((t) => !t.parent_id)
         ?.id as number,
       order_id: parseInt(order.id),

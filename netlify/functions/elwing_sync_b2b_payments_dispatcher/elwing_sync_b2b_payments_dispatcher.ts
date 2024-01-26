@@ -44,7 +44,7 @@ export const handler: Handler = async (event, context) => {
   //     body: JSON.stringify({ err: "No event body" }),
   //   };
   // }
-  const body = JSON.parse(event.body);
+  const body = JSON.parse(event.body as any);
 //   const body = {
 // "events": [
 //     {

@@ -27,7 +27,7 @@ export async function Shopify_createOrderTransaction(
     orderId: string,
     transaction: Transaction
   ): Promise<void> {
-    return await makeRESTShopifyRequest(
+    const result = await makeRESTShopifyRequest(
       config,
       "orders",
       orderId,
@@ -35,6 +35,10 @@ export async function Shopify_createOrderTransaction(
       "transactions.json",
       { transaction }
     );
+    if ((result as any).errors.length > 0) {
+      throw new Error(JSON.stringify(result))
+    } 
+    return result as any
   }
   
   
@@ -57,7 +61,7 @@ export async function Shopify_createOrderTransaction(
     error_code: null | string;
     source_name: string;
     receipt: Record<string, any>; // You can specify a more specific type if needed.
-    amount: string;
+    amount: number;
     currency: string;
     payment_id: string;
     total_unsettled_set: Record<string, any>; // You can specify a more specific type if needed.
