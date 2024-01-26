@@ -127,13 +127,15 @@ export const handler: Handler = async (event, context) => {
     }
 
     // Create new transaction linked to main transaction
-    await Shopify_createOrderTransaction(config, order.id, {
+    const createTransactionResult = await Shopify_createOrderTransaction(config, order.id, {
       kind: "capture",
       amount: paymentInfo.payments.amount.toString(),
       parent_id: getTransactionsResponse.transactions.find((t) => !t.parent_id)
         ?.id as number,
       order_id: parseInt(order.id),
     } as Transaction);
+
+    console.log("createTransactionResult", createTransactionResult)
 
     // update custom attributes to add infos
     updateOrderCustomAttributes(config, order, paymentInfo);
