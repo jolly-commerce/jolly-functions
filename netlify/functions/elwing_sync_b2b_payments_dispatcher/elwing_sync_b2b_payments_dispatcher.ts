@@ -35,16 +35,16 @@ export const handler: Handler = async (event, context) => {
     };
   }
 
-  // if (!event.body) {
-  //   return {
-  //     headers: {
-  //       "Access-Control-Allow-Origin": "*",
-  //     },
-  //     statusCode: 204,
-  //     body: JSON.stringify({ err: "No event body" }),
-  //   };
-  // }
-  const body = JSON.parse(event.body as any);
+  if (!event.body) {
+    return {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
+      statusCode: 204,
+      body: JSON.stringify({ err: "No event body" }),
+    };
+  }
+  const body = JSON.parse(event.body);
 //   const body = {
 // "events": [
 //     {

@@ -111,7 +111,7 @@ export const handler: Handler = async (event, context) => {
     ).includes(paymentInfo.payments.id);
 
     if (thisTransactionWasAlreadyProcessed) {
-      //return getResponse(200);
+      return getResponse(200);
     }
 
     // Get order transactions
