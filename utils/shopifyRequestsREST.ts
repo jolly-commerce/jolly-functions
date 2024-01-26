@@ -35,7 +35,7 @@ export async function Shopify_createOrderTransaction(
       "transactions.json",
       { transaction }
     );
-    if ((result as any).errors.length > 0) {
+    if ((result as any)?.errors?.length > 0) {
       throw new Error(JSON.stringify(result))
     } 
     return result as any
