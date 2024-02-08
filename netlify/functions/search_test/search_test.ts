@@ -1,11 +1,17 @@
 import * as https from "https";
 
 export const handler = async (event) => {
-  const url = event.rawUrl.includes("myshopify")
-  console.log(event.rawUrl);
-  
-  return {
-    statusCode: 200,
-    body: JSON.stringify(event)
-  };
+  const checkShop = event?.queryStringParameters?.shop
+
+  if (checkShop) {
+    return {
+      statusCode: 200,
+      body: JSON.stringify("ok")
+    };
+  }else{
+    return {
+      statusCode: 400,
+      body: "not ok"
+    };
+  }
 }
