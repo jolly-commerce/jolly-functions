@@ -2,10 +2,17 @@ import * as https from "https";
 const { SearchServiceClient } = require('@google-cloud/retail').v2beta;
 const projectId = "jollycommerce-uni-676-gbp"
 const { GoogleAuth } = require('google-auth-library');
+const functions = require('firebase-functions');
+const admin = require("firebase-admin");
+var serviceAccount = require("./jollycommerce-uni-676-gbp-ceebe6a9a3a3.json");
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://jolly-commerce-functions.netlify.app/.netlify/functions/search_test"
+});
+
 const auth = new GoogleAuth({
   scopes: ['https://www.googleapis.com/auth/cloud_search.query', 'https://www.googleapis.com/auth/cloud_search', 'https://www.googleapis.com/auth/cloud_search.settings.query', 'https://www.googleapis.com/auth/cloud_search.indexing', 'https://www.googleapis.com/auth/cloud_search.debug', 'https://www.googleapis.com/auth/cloud_search.settings', 'https://www.googleapis.com/auth/cloud_search.settings.indexing', 'https://www.googleapis.com/auth/cloud_search.stats', 'https://www.googleapis.com/auth/cloud_search.stats.indexing', "https://www.googleapis.com/auth/cloud-platform", "https://www.googleapis.com/auth/dfatrafficking", "https://www.googleapis.com/auth/ddmconversions", "https://www.googleapis.com/auth/dfareporting",],
 });
-
 
 const handler = async (event) => {
   const token = await auth.getAccessToken()

@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "jollycommerce-uni-676-gbp",
+  "private_key_id": "ceebe6a9a3a3d04b606c496b7e14ffa85167bfe9",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCLWKibwH+186sY\noknKYUBAGvNl4z6UFqrHK6vOdDCRRehStuzh1ey8zJlBxVie+AUue6Jy+6soCpMe\nnFNIkUYn+wugUU6KfzJRtyCJ0FeCZBFobUVaafOricUwPDcaTuwQ5xVQeIAUTGgf\nt4WPPusroKC52uEx9pIysqBSse4JTtyPk3RbdzRPWa8uSnwEhCmjouB8DnDQAzCv\nBAc5qtBd81ZWDCVQ9ZI6qBM0HVdAhxxQqLhSMWRjjxnMPgh3wI3Y80/3FCg0RjFm\nCmKzAqnR9U7Bw282LONGRhwZ6pmjGtSjVtY1wtCmJblLE65ar36uxGaw3mV4h216\nOhEsSQ1pAgMBAAECgf8NRIPJUKrYSDsiPVGJU3kqoWZLbTeoIgBgtmfFYIq/Ski0\nl3Y2ioff8hsliATIHhVgN6VgDVZemaMoZvoHDs3/QIf628L+rN29qhIPDSdH4v9F\nUiIoWa45xwRfc1xLxPf1JAuDffWz+RJw8qhk2zjJDqI/D/ghKbkB2sApH4fqmtOn\nX/UJyFAkq2mvv10NyqQHbwGI7wUFOoUM0atYtHeQY+FoYiVffQAkzglD2cS279hF\nWKtyAsT2QQ6If5FvNklx4ZiZjSwLJcou0g9ZHA4+9rvJ5zDJZSXKg8P4EKt0/1eR\ne8Wk0Ggrc9a86UgfuNUD7WgPSS3JtmSoOa2o8VECgYEAxBQNYP8jqbfqAqbMMFWm\nx9Joe77rwbCi5ItjMrClnEaedyWPFlt+mTMv317Cgxzh16UIK3xm2kmmlPhfsbeh\nq/EvxTYNYIyQotGnj8XL1eWXartF0WtR7djNSiaN3N8Q9bs+dPe5bTHDju4jrRv6\nEIPDAlHWQ23HArAlPrQsIRkCgYEAte4/VJojN1nqfXdeQ0Q17DwZNH7A9n87HeOu\nR6NIzX3rHbOf8LJp3BK0A9aLDTfOp5NNJ09M4QiYPYsVuesgfxvS3akorwbQQEcV\ncVHVYJl0bIhWcxoJmOM71g9lyFlBznZmM0UCSq5PsjWNVjV60MMxeYMVYZhdXbfF\nJ7HrSNECgYEAglaB/jQbVLn4SALwQEDvOGzZH0juFjaAUUOGkS9zJsqak8DXuJjh\nMp0f+W9YBSexyFLfd2ieRgQnQ2dG1S+nvE/63TDs+3z0uAZ9R8jHkkuntz79ThP0\nxhIThHLUYjm1YGMzRTVWgQtPXzdVZ8DtHQU5H9Weg/v5CgRk/aVuoCECgYBgnxW3\nYt1NKk3lMJ45b2KMAicIwEDPKSdGaoNGvKuPp05VSe6psLeUD8LXPvw+muMAELUr\nKWyVHzFrjhCN2xg5KZfF7W8T9bRoTthOhL2kPhudAJOZMbzjG9vNhgPycaUHd84z\ncHUVIJpm9RYJMQH3GZOPC1Uxre/4M/9bY5yn4QKBgQCOwEHuon/mcKs/4E2mcsTC\nLXI1ANGl7yS2r5E6S9aYtsY+a6+Pij94JmS8Vzx6wuaADaAAmTCBUJgX2K9TD5AK\nklKVvLmVcHLMvhL0aTSni+i+u6F1LVMiJl5YXkvlb9gGXUIAZt0d1dv0/Hswm/5/\nhN0RjQYFAA0fPg5Unlqjdw==\n-----END PRIVATE KEY-----\n",
+  "client_email": "shopify-search@jollycommerce-uni-676-gbp.iam.gserviceaccount.com",
+  "client_id": "105506147924289629574",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/shopify-search%40jollycommerce-uni-676-gbp.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
