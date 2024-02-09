@@ -1,19 +1,25 @@
 import * as https from "https";
-import { CatalogServiceClient } from '@google-cloud/retail'
-const { Storage } = require('@google-cloud/storage');
-const { CompletionServiceClient } = require('@google-cloud/retail').v2beta;
-const client = new CatalogServiceClient();
+const { SearchServiceClient } = require('@google-cloud/retail').v2beta;
 const projectId = "jollycommerce-uni-676-gbp"
+const { GoogleAuth } = require('google-auth-library');
+const auth = new GoogleAuth({
+  scopes: ['https://www.googleapis.com/auth/cloud_search.query', 'https://www.googleapis.com/auth/cloud_search', 'https://www.googleapis.com/auth/cloud_search.settings.query', 'https://www.googleapis.com/auth/cloud_search.indexing', 'https://www.googleapis.com/auth/cloud_search.debug', 'https://www.googleapis.com/auth/cloud_search.settings', 'https://www.googleapis.com/auth/cloud_search.settings.indexing', 'https://www.googleapis.com/auth/cloud_search.stats', 'https://www.googleapis.com/auth/cloud_search.stats.indexing', "https://www.googleapis.com/auth/cloud-platform", "https://www.googleapis.com/auth/dfatrafficking", "https://www.googleapis.com/auth/ddmconversions", "https://www.googleapis.com/auth/dfareporting",],
+});
+
 
 const handler = async (event) => {
+  const token = await auth.getAccessToken()
   const checkShop = event?.queryStringParameters?.shop
-  // await authenticateImplicitWithAdc();
-  await main(`projects/${projectId}/locations/global/catalogs/default_catalog`, 'bas');
-  // await listCatalogs();
+  console.time()
+  const autocompleteResponse = await mainAutocomplete(`projects/${projectId}/locations/global/catalogs/default_catalog`, 'bas', token);
+  // const searchResponse = mainSearch(`projects/${projectId}/locations/global/catalogs/default_catalog/servingConfigs/default_search`, '123')
+  console.log(autocompleteResponse);
+  console.timeEnd()
+
   if (checkShop) {
     return {
       statusCode: 200,
-      body: JSON.stringify("ok")
+      body: JSON.stringify(autocompleteResponse)
     };
   } else {
     return {
@@ -23,44 +29,71 @@ const handler = async (event) => {
   }
 }
 
-function main(catalog, query) {
-  const retailClient = new CompletionServiceClient();
+function mainSearch(placement, visitorId, query) {
+  const retailClient = new SearchServiceClient();
 
-  async function callCompleteQuery() {
+  async function callSearch() {
     const request = {
-      catalog,
-      query,
+      placement,
+      visitorId
     };
 
-    const response = await retailClient.completeQuery(request);
-    console.log(response[0].completionResults);
+    const iterable = retailClient.searchAsync(request);
+    for await (const response of iterable) {
+      console.log(response);
+    }
   }
 
-  callCompleteQuery();
+  callSearch();
 }
 
-async function listCatalogs() {
-  const location = "global"
+async function mainAutocomplete(catalog, query, token) {
+  // v1
+  // const autocompleteProductResponse = await fetch(`https://cloudsearch.googleapis.com/v1/query/suggest`, {
+  //   method: 'POST',
+  //   body: JSON.stringify({
+  //     catalog,
+  //     query,
+  //     visitorId: '12581147560-qg2973u7ne51adj8uj3mkptqqcot2vvc.apps.googleusercontent.com',
+  //   }),
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //     'X-Goog-User-Project': projectId,
+  //     'Authorization': `Bearer ${token}`,
+  //   }
+  // })
+  //   .then(res => res.json())
+  //   .catch(err => console.error('error:' + err));
 
-  const catalogs = await client.listCatalogs({
-    parent: `projects/${projectId}/locations/${location}`,
-  });
+  // return autocompleteProductResponse
 
-  console.info(catalogs);
-}
+  // v2
+  const autocompleteProductResponse = await fetch(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog:completeQuery?query=bas`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Goog-User-Project': projectId,
+      'Authorization': `Bearer ${token}`,
+    }
+  })
+    .then(res => res.json())
+    .catch(err => console.error('error:' + err));
 
-async function authenticateImplicitWithAdc() {
-  const storage = new Storage({
-    projectId,
-  });
-  const [buckets] = await storage.getBuckets();
-  console.log('Buckets:');
+  return autocompleteProductResponse
 
-  for (const bucket of buckets) {
-    console.log(`- ${bucket.name}`);
-  }
+  // example
+  // const retailClient = new CompletionServiceClient();
 
-  console.log('Listed all storage buckets.');
+  // async function callCompleteQuery() {
+  //   const request = {
+  //     catalog,
+  //     query,
+  //   };
+
+  //   return await retailClient.completeQuery(request);
+  // }
+
+  // return callCompleteQuery();
 }
 
 module.exports = { handler }
