@@ -22,6 +22,7 @@ function getGoogleCredentials(private_key, client_email) {
 const handler = async (event) => {
   const checkShop = event?.queryStringParameters?.shop?.includes('myshopify')
   console.log(checkShop);
+  console.log(event);
   
   if (!checkShop) {
     return {
