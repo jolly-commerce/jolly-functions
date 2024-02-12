@@ -21,9 +21,12 @@ function getGoogleCredentials(private_key, client_email) {
 
 const handler = async (event) => {
   const checkShop = event?.queryStringParameters?.shop?.includes('myshopify')
-  console.log(checkShop);
+  const eventBody = JSON.parse(event?.body)
+  const querySeaarch = eventBody?.query
   console.log(event);
-  
+  console.log(checkShop);
+  console.log(querySeaarch);
+
   if (!checkShop) {
     return {
       statusCode: 400,
@@ -32,7 +35,7 @@ const handler = async (event) => {
   }
 
   const token = await auth.getAccessToken()
-  const autocompleteResponse = await mainAutocomplete(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog`, 'bas', token);
+  const autocompleteResponse = await mainAutocomplete(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog`, querySeaarch, token);
   // const searchResponse = mainSearch(`projects/${projectId}/locations/global/catalogs/default_catalog/servingConfigs/default_search`, '123')
   console.log(autocompleteResponse);
 
