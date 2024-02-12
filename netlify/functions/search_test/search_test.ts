@@ -1,42 +1,44 @@
 import * as https from "https";
 const { SearchServiceClient } = require('@google-cloud/retail').v2beta;
-const projectId = "jollycommerce-uni-676-gbp"
 const { GoogleAuth } = require('google-auth-library');
-var serviceAccount = require("./jollycommerce-uni-676-gbp-d9a072e15747.json");
 const fetch = require('node-fetch');
+const dotenv = require('dotenv');
+dotenv.config();
+const serviseAccountInfo = JSON.parse(process.env.GOOGLE_CLOUD_INFO)
+const projectId = serviseAccountInfo.project_id
 
 const auth = new GoogleAuth({
   scopes: ['https://www.googleapis.com/auth/cloud_search.query', 'https://www.googleapis.com/auth/cloud_search', 'https://www.googleapis.com/auth/cloud_search.settings.query', 'https://www.googleapis.com/auth/cloud_search.indexing', 'https://www.googleapis.com/auth/cloud_search.debug', 'https://www.googleapis.com/auth/cloud_search.settings', 'https://www.googleapis.com/auth/cloud_search.settings.indexing', 'https://www.googleapis.com/auth/cloud_search.stats', 'https://www.googleapis.com/auth/cloud_search.stats.indexing', "https://www.googleapis.com/auth/cloud-platform", "https://www.googleapis.com/auth/dfatrafficking", "https://www.googleapis.com/auth/ddmconversions", "https://www.googleapis.com/auth/dfareporting",],
-  credentials: getGoogleCredentials()
+  credentials: getGoogleCredentials(serviseAccountInfo.private_key, serviseAccountInfo.client_email)
 });
 
-function getGoogleCredentials() {
+function getGoogleCredentials(private_key, client_email) {
   return {
-    private_key: serviceAccount.private_key,
-    client_email: serviceAccount.client_email
+    private_key: private_key,
+    client_email: client_email
   }
 }
 
 const handler = async (event) => {
-  const token = await auth.getAccessToken()
-  const checkShop = event?.queryStringParameters?.shop
-  console.time()
-  const autocompleteResponse = await mainAutocomplete(`projects/${projectId}/locations/global/catalogs/default_catalog`, 'bas', token);
-  // const searchResponse = mainSearch(`projects/${projectId}/locations/global/catalogs/default_catalog/servingConfigs/default_search`, '123')
-  console.log(autocompleteResponse);
-  console.timeEnd()
-
-  if (checkShop) {
-    return {
-      statusCode: 200,
-      body: JSON.stringify(autocompleteResponse)
-    };
-  } else {
+  const checkShop = event?.queryStringParameters?.shop?.includes('myshopify')
+  console.log(checkShop);
+  
+  if (!checkShop) {
     return {
       statusCode: 400,
       body: "not ok"
     };
   }
+
+  const token = await auth.getAccessToken()
+  const autocompleteResponse = await mainAutocomplete(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog`, 'bas', token);
+  // const searchResponse = mainSearch(`projects/${projectId}/locations/global/catalogs/default_catalog/servingConfigs/default_search`, '123')
+  console.log(autocompleteResponse);
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify(autocompleteResponse)
+  };
 }
 
 function mainSearch(placement, visitorId, query) {
@@ -78,7 +80,7 @@ async function mainAutocomplete(catalog, query, token) {
   // return autocompleteProductResponse
 
   // v2
-  const autocompleteProductResponse = await fetch(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog:completeQuery?query=bas`, {
+  const autocompleteProductResponse = await fetch(`${catalog}:completeQuery?query=${query}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
