@@ -63,8 +63,8 @@ async function mainSearch(catalog, token, query) {
       'Authorization': `Bearer ${token}`,
     },
     body: JSON.stringify({
-      "query": query,
-      "visitorId": new Date().valueOf()
+      "query": `${query}`,
+      "visitorId": `${new Date().valueOf()}`
     })
   })
     .then(res => res.json())
