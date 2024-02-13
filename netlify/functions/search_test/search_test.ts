@@ -39,41 +39,38 @@ const handler = async (event) => {
   const querySeaarch = eventBody?.query
   console.log(querySeaarch);
   const token = await auth.getAccessToken()
-  const autocompleteResponse = await mainAutocomplete(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog:completeQuery?query=${querySeaarch}`, token);
-  // const searchResponse = mainSearch(`projects/${projectId}/locations/global/catalogs/default_catalog/servingConfigs/default_search`, '123')
-  console.log(autocompleteResponse);
+  let response
+  if (eventBody.rout == 'search') {
+    const searchResponse = await mainSearch(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/placements/default_search:search`, token, querySeaarch)
+    response = searchResponse
+  }else if(eventBody.rout == 'autocomplete'){
+    const autocompleteResponse = await mainAutocomplete(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog:completeQuery?query=${querySeaarch}`, token);
+    response = autocompleteResponse
+  }
 
   return {
     statusCode: 200,
-    body: JSON.stringify(autocompleteResponse)
+    body: JSON.stringify(response)
   };
 }
 
-function computeSignature(querystringFromClient, shopifyAppSecret) {
-  const formattedQueryString = querystringFromClient.replace("/?", "")
-    .replace(/&signature=[^&]*/, "").split("&")
-    .map(x => querystring.unescape(x)).sort().join("")
-  const computedSignature = crypto.createHmac('sha256', shopifyAppSecret)
-    .update(formattedQueryString, 'utf-8').digest('hex')
-  return computedSignature
-}
+async function mainSearch(catalog, token, query) {
+  const searchProductResponse = await fetch(catalog, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Goog-User-Project': projectId,
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      "query": query,
+      "visitorId": new Date().valueOf()
+    })
+  })
+    .then(res => res.json())
+    .catch(err => console.error('error:' + err));
 
-function mainSearch(placement, visitorId, query) {
-  const retailClient = new SearchServiceClient();
-
-  async function callSearch() {
-    const request = {
-      placement,
-      visitorId
-    };
-
-    const iterable = retailClient.searchAsync(request);
-    for await (const response of iterable) {
-      console.log(response);
-    }
-  }
-
-  callSearch();
+  return searchProductResponse
 }
 
 async function mainAutocomplete(catalog, token) {
@@ -89,6 +86,15 @@ async function mainAutocomplete(catalog, token) {
     .catch(err => console.error('error:' + err));
 
   return autocompleteProductResponse
+}
+
+function computeSignature(querystringFromClient, shopifyAppSecret) {
+  const formattedQueryString = querystringFromClient.replace("/?", "")
+    .replace(/&signature=[^&]*/, "").split("&")
+    .map(x => querystring.unescape(x)).sort().join("")
+  const computedSignature = crypto.createHmac('sha256', shopifyAppSecret)
+    .update(formattedQueryString, 'utf-8').digest('hex')
+  return computedSignature
 }
 
 module.exports = { handler }
