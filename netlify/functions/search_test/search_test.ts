@@ -26,27 +26,39 @@ const handler = async (event) => {
   const originalQuerystring = event.rawQuery
   const signatureFromClient = querystring.parse(originalQuerystring).signature
   const computedSignature = computeSignature(originalQuerystring, searchAppSecretClient)
-  console.log(event);
-
+  
   if (computedSignature != signatureFromClient) {
     return {
       statusCode: 400,
       body: "not ok"
     };
   }
-
+  
   const eventBody = event?.body ? JSON.parse(event?.body) : {}
   const querySeaarch = eventBody?.query
+  const uploadProducts = eventBody?.products
+  const predictProducts = eventBody?.predictProducts
+  const visitorId = eventBody?.visitorId
+  const branchUploadProducts = eventBody?.branchUploadProducts
+  console.log(event);
   console.log(querySeaarch);
   const token = await auth.getAccessToken()
+
   let response
   if (eventBody.rout == 'search') {
-    const searchResponse = await mainSearch(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/placements/default_search:search`, token, querySeaarch)
+    const searchResponse = await mainSearch(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/servingConfigs/default_search:search`, token, querySeaarch, visitorId)
     response = searchResponse
-  }else if(eventBody.rout == 'autocomplete'){
+  } else if (eventBody.rout == 'autocomplete') {
     const autocompleteResponse = await mainAutocomplete(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog:completeQuery?query=${querySeaarch}`, token);
     response = autocompleteResponse
+  } else if (eventBody.rout == 'predict') {
+    const predictResponse = await mainPredict(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/servingConfigs/similar_items:predict`, token, predictProducts, visitorId);
+    response = predictResponse
+  } else if (eventBody.rout == 'uploadProducts') {
+    const uploadProductsResponse = await mainUploadProducts(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/branches/${branchUploadProducts}/products:import`, token, uploadProducts);
+    response = uploadProductsResponse
   }
+  console.log(response);
 
   return {
     statusCode: 200,
@@ -54,7 +66,63 @@ const handler = async (event) => {
   };
 }
 
-async function mainSearch(catalog, token, query) {
+// why only 100 products
+async function mainUploadProducts(catalog, token, products) {
+  const searchProductResponse = await fetch(catalog, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Goog-User-Project': projectId,
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      "inputConfig": {
+        "productInlineSource": {
+          "products": products
+        }
+      }
+    })
+  })
+    .then(res => res.json())
+    .catch(err => console.error('error:' + err));
+
+  return searchProductResponse
+}
+
+async function mainPredict(catalog, token, products, visitorId) {
+  // [
+  //   {
+  //     "product": {
+  //       "id": "44932054352188"
+  //     }
+  //   }
+  // ]
+  const searchProductResponse = await fetch(catalog, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Goog-User-Project': projectId,
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      "pageSize": 100,
+      "params": {
+        "returnProduct": true,
+      },
+      "userEvent": {
+        "eventType": "detail-page-view",
+        "visitorId": `${visitorId}`,
+        "productDetails": products
+      }
+    })
+  })
+    .then(res => res.json())
+    .catch(err => console.error('error:' + err));
+
+  return searchProductResponse
+}
+
+async function mainSearch(catalog, token, query, visitorId) {
   const searchProductResponse = await fetch(catalog, {
     method: 'POST',
     headers: {
@@ -64,7 +132,7 @@ async function mainSearch(catalog, token, query) {
     },
     body: JSON.stringify({
       "query": `${query}`,
-      "visitorId": `${new Date().valueOf()}`
+      "visitorId": `${visitorId}`
     })
   })
     .then(res => res.json())
