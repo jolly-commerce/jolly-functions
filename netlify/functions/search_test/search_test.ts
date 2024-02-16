@@ -1,5 +1,4 @@
 import * as https from "https";
-const { SearchServiceClient } = require('@google-cloud/retail').v2beta;
 const { GoogleAuth } = require('google-auth-library');
 const fetch = require('node-fetch');
 const dotenv = require('dotenv');
@@ -33,7 +32,7 @@ const handler = async (event) => {
       body: "not ok"
     };
   }
-  
+
   const eventBody = event?.body ? JSON.parse(event?.body) : {}
   const querySeaarch = eventBody?.query
   const uploadProducts = eventBody?.products
@@ -90,13 +89,6 @@ async function mainUploadProducts(catalog, token, products) {
 }
 
 async function mainPredict(catalog, token, products, visitorId) {
-  // [
-  //   {
-  //     "product": {
-  //       "id": "44932054352188"
-  //     }
-  //   }
-  // ]
   const searchProductResponse = await fetch(catalog, {
     method: 'POST',
     headers: {
