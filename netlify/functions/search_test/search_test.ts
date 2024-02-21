@@ -39,6 +39,8 @@ const handler = async (event) => {
   const branchUploadProducts = eventBody?.branchUploadProducts
   console.log(event);
   console.log(querySeaarch);
+  console.log(visitorId);
+  
   const token = await auth.getAccessToken()
 
   let response
