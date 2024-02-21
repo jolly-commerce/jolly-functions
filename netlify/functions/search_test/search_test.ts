@@ -1,8 +1,6 @@
 import * as https from "https";
 const { GoogleAuth } = require('google-auth-library');
 const fetch = require('node-fetch');
-const dotenv = require('dotenv');
-dotenv.config();
 const querystring = require('querystring')
 const crypto = require('crypto')
 const serviseAccountInfo = JSON.parse(process.env.GOOGLE_CLOUD_INFO)
