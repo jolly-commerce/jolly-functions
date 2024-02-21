@@ -23,7 +23,7 @@ const handler = async (event) => {
   const originalQuerystring = event.rawQuery
   const signatureFromClient = querystring.parse(originalQuerystring).signature
   const computedSignature = computeSignature(originalQuerystring, searchAppSecretClient)
-  
+
   if (computedSignature != signatureFromClient) {
     return {
       statusCode: 400,
@@ -37,15 +37,17 @@ const handler = async (event) => {
   const predictProducts = eventBody?.predictProducts
   const visitorId = eventBody?.visitorId
   const branchUploadProducts = eventBody?.branchUploadProducts
+  const branchSearch = eventBody?.branchSearch
+  const branchCountResultsSearch = eventBody?.branchCountResultsSearch
   console.log(event);
   console.log(querySeaarch);
   console.log(visitorId);
-  
+
   const token = await auth.getAccessToken()
 
   let response
   if (eventBody.rout == 'search') {
-    const searchResponse = await mainSearch(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/servingConfigs/default_search:search`, token, querySeaarch, visitorId)
+    const searchResponse = await mainSearch(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/servingConfigs/default_search:search`, token, querySeaarch, visitorId, branchSearch, branchCountResultsSearch)
     response = searchResponse
   } else if (eventBody.rout == 'autocomplete') {
     const autocompleteResponse = await mainAutocomplete(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog:completeQuery?query=${querySeaarch}`, token);
@@ -114,7 +116,7 @@ async function mainPredict(catalog, token, products, visitorId) {
   return searchProductResponse
 }
 
-async function mainSearch(catalog, token, query, visitorId) {
+async function mainSearch(catalog, token, query, visitorId, branch, branchCountResultsSearch) {
   const searchProductResponse = await fetch(catalog, {
     method: 'POST',
     headers: {
@@ -124,7 +126,9 @@ async function mainSearch(catalog, token, query, visitorId) {
     },
     body: JSON.stringify({
       "query": `${query}`,
-      "visitorId": `${visitorId}`
+      "visitorId": `${visitorId}`,
+      "branch": `projects/${projectId}/locations/global/catalogs/default_catalog/branches/${branch}`,
+      "pageSize": branchCountResultsSearch
     })
   })
     .then(res => res.json())
