@@ -42,6 +42,7 @@ const handler = async (event) => {
   const facetKeysSearch = eventBody?.facetKeysSearch
   const filterSearch = eventBody?.filterSearch
   const offsetSearch = eventBody?.offsetSearch
+  const searchOrderBy = eventBody?.searchOrderBy
   console.log(event);
   console.log(querySeaarch);
 
@@ -49,7 +50,7 @@ const handler = async (event) => {
 
   let response
   if (eventBody.rout == 'search') {
-    const searchResponse = await mainSearch(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/servingConfigs/default_search:search`, token, querySeaarch, visitorId, branchSearch, branchCountResultsSearch, facetKeysSearch, filterSearch, offsetSearch)
+    const searchResponse = await mainSearch(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/servingConfigs/default_search:search`, token, querySeaarch, visitorId, branchSearch, branchCountResultsSearch, facetKeysSearch, filterSearch, offsetSearch, searchOrderBy)
     response = searchResponse
   } else if (eventBody.rout == 'autocomplete') {
     const autocompleteResponse = await mainAutocomplete(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog:completeQuery?query=${querySeaarch}`, token);
@@ -118,7 +119,7 @@ async function mainPredict(catalog, token, products, visitorId) {
   return searchProductResponse
 }
 
-async function mainSearch(catalog, token, query, visitorId, branch, branchCountResultsSearch, facetKeys, filter, offset) {
+async function mainSearch(catalog, token, query, visitorId, branch, branchCountResultsSearch, facetKeys, filter, offset, orderBy) {
   const searchProductResponse = await fetch(catalog, {
     method: 'POST',
     headers: {
@@ -133,7 +134,8 @@ async function mainSearch(catalog, token, query, visitorId, branch, branchCountR
       "pageSize": branchCountResultsSearch,
       "facetSpecs": facetKeys,
       "filter": filter,
-      "offset": offset
+      "offset": offset,
+      "orderBy": orderBy
     })
   })
     .then(res => res.json())
