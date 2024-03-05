@@ -32,6 +32,11 @@ export const handler: Handler = async (event, context) => {
     "Access-Control-Allow-Headers": "Content-Type",
     "Access-Control-Allow-Methods": "*",
   };
+  return {
+    statusCode: 200,
+    headers: CORS_HEADERS,
+    body: JSON.stringify({ message: "Service disabled" }),
+  };
 
   // Handling preflight OPTIONS request
   if (event.httpMethod === "OPTIONS") {
