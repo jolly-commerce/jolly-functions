@@ -24,12 +24,12 @@ const handler = async (event) => {
   const signatureFromClient = querystring.parse(originalQuerystring).signature
   const computedSignature = computeSignature(originalQuerystring, searchAppSecretClient)
 
-  if (computedSignature != signatureFromClient) {
-    return {
-      statusCode: 400,
-      body: "not ok"
-    };
-  }
+  // if (computedSignature != signatureFromClient) {
+  //   return {
+  //     statusCode: 400,
+  //     body: "not ok"
+  //   };
+  // }
 
   const eventBody = event?.body ? JSON.parse(event?.body) : {}
   const querySeaarch = eventBody?.query
@@ -62,7 +62,7 @@ const handler = async (event) => {
     const uploadProductsResponse = await mainUploadProducts(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/branches/${branchUploadProducts}/products:import`, token, uploadProducts);
     response = uploadProductsResponse
   }
-  console.log(response);
+  console.log(response.facets);
 
   return {
     statusCode: 200,
