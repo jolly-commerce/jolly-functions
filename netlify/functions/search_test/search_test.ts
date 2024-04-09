@@ -24,12 +24,12 @@ const handler = async (event) => {
   const signatureFromClient = querystring.parse(originalQuerystring).signature
   const computedSignature = computeSignature(originalQuerystring, searchAppSecretClient)
 
-  // if (computedSignature != signatureFromClient) {
-  //   return {
-  //     statusCode: 400,
-  //     body: "not ok"
-  //   };
-  // }
+  if (computedSignature != signatureFromClient) {
+    return {
+      statusCode: 400,
+      body: "not ok"
+    };
+  }
 
   const eventBody = event?.body ? JSON.parse(event?.body) : {}
   const querySeaarch = eventBody?.query
