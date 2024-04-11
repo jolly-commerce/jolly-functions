@@ -43,6 +43,7 @@ const handler = async (event) => {
   const filterSearch = eventBody?.filterSearch
   const offsetSearch = eventBody?.offsetSearch
   const searchOrderBy = eventBody?.searchOrderBy
+  const productId = eventBody?.productId
   console.log(event);
   console.log(querySeaarch);
 
@@ -53,7 +54,7 @@ const handler = async (event) => {
     const searchResponse = await mainSearch(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/servingConfigs/default_search:search`, token, querySeaarch, visitorId, branchSearch, branchCountResultsSearch, facetKeysSearch, filterSearch, offsetSearch, searchOrderBy)
     response = searchResponse
   } else if (eventBody.rout == 'autocomplete') {
-    const autocompleteResponse = await mainAutocomplete(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog:completeQuery?query=${querySeaarch}`, token);
+    const autocompleteResponse = await mainGetResponse(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog:completeQuery?query=${querySeaarch}`, token);
     response = autocompleteResponse
   } else if (eventBody.rout == 'predict') {
     const predictResponse = await mainPredict(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/servingConfigs/similar_items:predict`, token, predictProducts, visitorId);
@@ -61,8 +62,12 @@ const handler = async (event) => {
   } else if (eventBody.rout == 'uploadProducts') {
     const uploadProductsResponse = await mainUploadProducts(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/branches/${branchUploadProducts}/products:import`, token, uploadProducts);
     response = uploadProductsResponse
+  } else if (eventBody.rout == 'getProduct'){
+    const getProductResponse = await mainGetResponse(`https://retail.googleapis.com/v2/projects/la-bourse-aux-livres/locations/global/catalogs/default_catalog/branches/default_branch/products/${productId}`, token);
+    response = getProductResponse
   }
-  console.log(response.facets);
+
+  console.log(response);
 
   return {
     statusCode: 200,
@@ -144,8 +149,8 @@ async function mainSearch(catalog, token, query, visitorId, branch, branchCountR
   return searchProductResponse
 }
 
-async function mainAutocomplete(catalog, token) {
-  const autocompleteProductResponse = await fetch(catalog, {
+async function mainGetResponse(catalog, token) {
+  const mainGetResponse = await fetch(catalog, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -156,7 +161,7 @@ async function mainAutocomplete(catalog, token) {
     .then(res => res.json())
     .catch(err => console.error('error:' + err));
 
-  return autocompleteProductResponse
+  return mainGetResponse
 }
 
 function computeSignature(querystringFromClient, shopifyAppSecret) {
