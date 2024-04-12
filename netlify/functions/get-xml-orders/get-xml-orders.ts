@@ -19,28 +19,32 @@ export const handler: Handler = async (event, context) => {
   let body: data_type = JSON.parse(event.body);
 
   const result = body.map((order) => {
-
-    const billing_address = order.billing_address != null ? order.billing_address : order.shipping_address;
+    const billingAddress =
+      order.billingAddress != null
+        ? order.billingAddress
+        : order.shippingAddress;
     return getObjectWithoutEmptyProperties({
       Codice_Cliente: String(order.customer.id).slice(0, -1), // because they want 12 number user ids and cannot change their system. This is the best we can do.
-      Numero_Ordine: String(order.id).slice(0, -1),
-      Ragione_Sociale_Destinatario: `${order.shipping_address.first_name} ${order.shipping_address.last_name}`,
-      Indirizzo_Destinatario: order.shipping_address.address1,
-      Localita_Destinatario: order.shipping_address.city,
-      CAP_Destinatario: order.shipping_address.zip,
-      Provincia_Destinatario: order.shipping_address.province_code,
-      Nazione_Destinatario: order.shipping_address.country_code,
-      Ragione_Sociale_Destinazione_Merce: `${billing_address.first_name} ${billing_address.last_name}`,
-      Indirizzo_Destinazione_Merce: billing_address.address1,
-      Localita_Destinazione_Merce: billing_address.city,
-      CAP_Destinazione_Merce: billing_address.zip,
-      Provincia_Destinazione_Merce: billing_address.province_code,
-      Nazione_Destinazione_Merce: billing_address.country_code,
-      Codice_Vettore: "FERCAM_FLEX",
+      Numero_Ordine: String(order.id.replace("gid://shopify/Order/","")).slice(0, -1),
+      Ragione_Sociale_Destinatario: `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`,
+      Indirizzo_Destinatario: order.shippingAddress.address1,
+      Localita_Destinatario: order.shippingAddress.city,
+      CAP_Destinatario: order.shippingAddress.zip,
+      Provincia_Destinatario: order.shippingAddress.provinceCode,
+      Nazione_Destinatario: order.shippingAddress.countryCodeV2,
+      Teléfono_destinatario: order.shippingAddress.phone,
+      Email_destinatario: order.email,
+      Ragione_Sociale_Destinazione_Merce: `${billingAddress.firstName} ${billingAddress.lastName}`,
+      Indirizzo_Destinazione_Merce: billingAddress.address1,
+      Localita_Destinazione_Merce: billingAddress.city,
+      CAP_Destinazione_Merce: billingAddress.zip,
+      Provincia_Destinazione_Merce: billingAddress.provinceCode,
+      Nazione_Destinazione_Merce: billingAddress.countryCodeV2,
+      Codice_Vettore: order.fulfillments[0],
       Righe_Ordine: {
-        Riga_Ordine: order.line_items.map((line_item, k) => ({
+        Riga_Ordine: order.lineItems.nodes.map((line_item, k) => ({
           Codice_Cliente: String(order.customer.id).slice(0, -1),
-          Numero_Ordine: `0000${order.number}`,
+          Numero_Ordine: `0000${order.name.replace("#", "")}`,
           Numero_Riga: k + 1,
           Numero_SottoRiga: 1,
           Codice_Articolo: line_item.sku,
