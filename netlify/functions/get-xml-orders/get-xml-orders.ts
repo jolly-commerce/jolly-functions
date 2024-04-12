@@ -24,7 +24,7 @@ export const handler: Handler = async (event, context) => {
         ? order.billingAddress
         : order.shippingAddress;
     return getObjectWithoutEmptyProperties({
-      Codice_Cliente: String(order.customer.id.replace("gid://shopify/Customer","")).slice(0, -1), // because they want 12 number user ids and cannot change their system. This is the best we can do.
+      Codice_Cliente: String(order.customer.id.replace("gid://shopify/Customer/","")).slice(0, -1), // because they want 12 number user ids and cannot change their system. This is the best we can do.
       Numero_Ordine: String(order.id.replace("gid://shopify/Order/","")).slice(0, -1),
       Ragione_Sociale_Destinatario: `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`,
       Indirizzo_Destinatario: order.shippingAddress.address1,
@@ -43,7 +43,7 @@ export const handler: Handler = async (event, context) => {
       Codice_Vettore: order.fulfillments[0],
       Righe_Ordine: {
         Riga_Ordine: order.lineItems.nodes.map((line_item, k) => ({
-          Codice_Cliente: String(order.customer.id.replace("gid://shopify/Customer","")).slice(0, -1),
+          Codice_Cliente: String(order.customer.id.replace("gid://shopify/Customer/","")).slice(0, -1),
           Numero_Ordine: `0000${order.name.replace("#", "")}`,
           Numero_Riga: k + 1,
           Numero_SottoRiga: 1,
