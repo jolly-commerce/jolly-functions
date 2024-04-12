@@ -47,7 +47,7 @@ export const handler: Handler = async (event, context) => {
       CAP_Destinatario: order.shippingAddress.zip,
       Provincia_Destinatario: order.shippingAddress.provinceCode,
       Nazione_Destinatario: order.shippingAddress.countryCodeV2,
-      Teléfono_destinatario: order.shippingAddress.phone,
+      Telefono_destinatario: order.shippingAddress.phone,
       Email_destinatario: order.email,
       Ragione_Sociale_Destinazione_Merce: `${billingAddress.firstName} ${billingAddress.lastName}`,
       Indirizzo_Destinazione_Merce: billingAddress.address1,
