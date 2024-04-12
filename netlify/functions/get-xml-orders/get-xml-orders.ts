@@ -27,7 +27,7 @@ function getOrderTotalWeight(fulfillmentOrders: FullfillmentOrder[]) {
 
 export const handler: Handler = async (event, context) => {
   let body: data_type = JSON.parse(event.body);
-  const;
+  
   const result = body.map((order) => {
     const billingAddress =
       order.billingAddress != null
