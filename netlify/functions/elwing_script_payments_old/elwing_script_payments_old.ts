@@ -9,7 +9,7 @@ import {
   Shopify_getOrderTransaction,
   Transaction,
 } from "../../../utils/shopifyRequestsREST";
-import { ElwingConfig, GCL_Payment, GCL_get_event } from "../../../utils/goCardLessRequests";
+import { ElwingConfig, GCL_Payment } from "../../../utils/goCardLessRequests";
 import { ALLPAYMENTS } from "../../../utils/payments";
 import fs from "fs";
 
