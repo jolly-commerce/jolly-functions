@@ -55,7 +55,7 @@ export const handler: Handler = async (event, context) => {
       CAP_Destinazione_Merce: billingAddress.zip,
       Provincia_Destinazione_Merce: billingAddress.provinceCode,
       Nazione_Destinazione_Merce: billingAddress.countryCodeV2,
-      Codice_Vettore: "default",  // order.shippingLines.nodes[0].title
+      Codice_Vettore: "FERCAM_FLEX",  // order.shippingLines.nodes[0].title
       Peso_Carico_Previsto: getOrderTotalWeight(order.fulfillmentOrders.nodes),
       Aspetto1_Qta: order.shippingLines.nodes.length,
       Righe_Ordine: {
