@@ -1,84 +1,156 @@
 import * as https from "https";
-const { SearchServiceClient } = require('@google-cloud/retail').v2beta;
-const projectId = "jollycommerce-uni-676-gbp"
 const { GoogleAuth } = require('google-auth-library');
-var serviceAccount = require("./jollycommerce-uni-676-gbp-d9a072e15747.json");
 const fetch = require('node-fetch');
+const querystring = require('querystring')
+const crypto = require('crypto')
+const serviseAccountInfo = JSON.parse(process.env.GOOGLE_CLOUD_INFO)
+const projectId = serviseAccountInfo.project_id
+const searchAppSecretClient = process.env.SEARCH_APP_SECRET_CLIENT
 
 const auth = new GoogleAuth({
   scopes: ['https://www.googleapis.com/auth/cloud_search.query', 'https://www.googleapis.com/auth/cloud_search', 'https://www.googleapis.com/auth/cloud_search.settings.query', 'https://www.googleapis.com/auth/cloud_search.indexing', 'https://www.googleapis.com/auth/cloud_search.debug', 'https://www.googleapis.com/auth/cloud_search.settings', 'https://www.googleapis.com/auth/cloud_search.settings.indexing', 'https://www.googleapis.com/auth/cloud_search.stats', 'https://www.googleapis.com/auth/cloud_search.stats.indexing', "https://www.googleapis.com/auth/cloud-platform", "https://www.googleapis.com/auth/dfatrafficking", "https://www.googleapis.com/auth/ddmconversions", "https://www.googleapis.com/auth/dfareporting",],
-  credentials: getGoogleCredentials()
+  credentials: getGoogleCredentials(serviseAccountInfo.private_key, serviseAccountInfo.client_email)
 });
 
-function getGoogleCredentials() {
+function getGoogleCredentials(private_key, client_email) {
   return {
-    private_key: serviceAccount.private_key,
-    client_email: serviceAccount.client_email
+    private_key: private_key,
+    client_email: client_email
   }
 }
 
 const handler = async (event) => {
-  const token = await auth.getAccessToken()
-  const checkShop = event?.queryStringParameters?.shop
-  console.time()
-  const autocompleteResponse = await mainAutocomplete(`projects/${projectId}/locations/global/catalogs/default_catalog`, 'bas', token);
-  // const searchResponse = mainSearch(`projects/${projectId}/locations/global/catalogs/default_catalog/servingConfigs/default_search`, '123')
-  console.log(autocompleteResponse);
-  console.timeEnd()
+  const originalQuerystring = event.rawQuery
+  const signatureFromClient = querystring.parse(originalQuerystring).signature
+  const computedSignature = computeSignature(originalQuerystring, searchAppSecretClient)
 
-  if (checkShop) {
-    return {
-      statusCode: 200,
-      body: JSON.stringify(autocompleteResponse)
-    };
-  } else {
+  if (computedSignature != signatureFromClient) {
     return {
       statusCode: 400,
       body: "not ok"
     };
   }
-}
 
-function mainSearch(placement, visitorId, query) {
-  const retailClient = new SearchServiceClient();
+  const eventBody = event?.body ? JSON.parse(event?.body) : {}
+  const querySeaarch = eventBody?.query
+  const uploadProducts = eventBody?.products
+  const predictProducts = eventBody?.predictProducts
+  const visitorId = eventBody?.visitorId
+  const branchUploadProducts = eventBody?.branchUploadProducts
+  const branchSearch = eventBody?.branchSearch
+  const branchCountResultsSearch = eventBody?.branchCountResultsSearch
+  const facetKeysSearch = eventBody?.facetKeysSearch
+  const filterSearch = eventBody?.filterSearch
+  const offsetSearch = eventBody?.offsetSearch
+  const searchOrderBy = eventBody?.searchOrderBy
+  const productId = eventBody?.productId
+  console.log(event);
+  console.log(querySeaarch);
 
-  async function callSearch() {
-    const request = {
-      placement,
-      visitorId
-    };
+  const token = await auth.getAccessToken()
 
-    const iterable = retailClient.searchAsync(request);
-    for await (const response of iterable) {
-      console.log(response);
-    }
+  let response
+  if (eventBody.rout == 'search') {
+    const searchResponse = await mainSearch(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/servingConfigs/default_search:search`, token, querySeaarch, visitorId, branchSearch, branchCountResultsSearch, facetKeysSearch, filterSearch, offsetSearch, searchOrderBy)
+    response = searchResponse
+  } else if (eventBody.rout == 'autocomplete') {
+    const autocompleteResponse = await mainGetResponse(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog:completeQuery?query=${querySeaarch}`, token);
+    response = autocompleteResponse
+  } else if (eventBody.rout == 'predict') {
+    const predictResponse = await mainPredict(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/servingConfigs/similar_items:predict`, token, predictProducts, visitorId);
+    response = predictResponse
+  } else if (eventBody.rout == 'uploadProducts') {
+    const uploadProductsResponse = await mainUploadProducts(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/branches/${branchUploadProducts}/products:import`, token, uploadProducts);
+    response = uploadProductsResponse
+  } else if (eventBody.rout == 'getProduct'){
+    const getProductResponse = await mainGetResponse(`https://retail.googleapis.com/v2/projects/la-bourse-aux-livres/locations/global/catalogs/default_catalog/branches/default_branch/products/${productId}`, token);
+    response = getProductResponse
   }
 
-  callSearch();
+  console.log(response);
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify(response)
+  };
 }
 
-async function mainAutocomplete(catalog, query, token) {
-  // v1
-  // const autocompleteProductResponse = await fetch(`https://cloudsearch.googleapis.com/v1/query/suggest`, {
-  //   method: 'POST',
-  //   body: JSON.stringify({
-  //     catalog,
-  //     query,
-  //     visitorId: '12581147560-qg2973u7ne51adj8uj3mkptqqcot2vvc.apps.googleusercontent.com',
-  //   }),
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //     'X-Goog-User-Project': projectId,
-  //     'Authorization': `Bearer ${token}`,
-  //   }
-  // })
-  //   .then(res => res.json())
-  //   .catch(err => console.error('error:' + err));
+// why only 100 products
+async function mainUploadProducts(catalog, token, products) {
+  const searchProductResponse = await fetch(catalog, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Goog-User-Project': projectId,
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      "inputConfig": {
+        "productInlineSource": {
+          "products": products
+        }
+      }
+    })
+  })
+    .then(res => res.json())
+    .catch(err => console.error('error:' + err));
 
-  // return autocompleteProductResponse
+  return searchProductResponse
+}
 
-  // v2
-  const autocompleteProductResponse = await fetch(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog:completeQuery?query=bas`, {
+async function mainPredict(catalog, token, products, visitorId) {
+  const searchProductResponse = await fetch(catalog, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Goog-User-Project': projectId,
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      "pageSize": 100,
+      "params": {
+        "returnProduct": true,
+      },
+      "userEvent": {
+        "eventType": "detail-page-view",
+        "visitorId": `${visitorId}`,
+        "productDetails": products
+      }
+    })
+  })
+    .then(res => res.json())
+    .catch(err => console.error('error:' + err));
+
+  return searchProductResponse
+}
+
+async function mainSearch(catalog, token, query, visitorId, branch, branchCountResultsSearch, facetKeys, filter, offset, orderBy) {
+  const searchProductResponse = await fetch(catalog, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Goog-User-Project': projectId,
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      "query": `${query}`,
+      "visitorId": `${visitorId}`,
+      "branch": `projects/${projectId}/locations/global/catalogs/default_catalog/branches/${branch}`,
+      "pageSize": branchCountResultsSearch,
+      "facetSpecs": facetKeys,
+      "filter": filter,
+      "offset": offset,
+      "orderBy": orderBy
+    })
+  })
+    .then(res => res.json())
+    .catch(err => console.error('error:' + err));
+
+  return searchProductResponse
+}
+
+async function mainGetResponse(catalog, token) {
+  const mainGetResponse = await fetch(catalog, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -89,21 +161,16 @@ async function mainAutocomplete(catalog, query, token) {
     .then(res => res.json())
     .catch(err => console.error('error:' + err));
 
-  return autocompleteProductResponse
+  return mainGetResponse
+}
 
-  // example
-  // const retailClient = new CompletionServiceClient();
-
-  // async function callCompleteQuery() {
-  //   const request = {
-  //     catalog,
-  //     query,
-  //   };
-
-  //   return await retailClient.completeQuery(request);
-  // }
-
-  // return callCompleteQuery();
+function computeSignature(querystringFromClient, shopifyAppSecret) {
+  const formattedQueryString = querystringFromClient.replace("/?", "")
+    .replace(/&signature=[^&]*/, "").split("&")
+    .map(x => querystring.unescape(x)).sort().join("")
+  const computedSignature = crypto.createHmac('sha256', shopifyAppSecret)
+    .update(formattedQueryString, 'utf-8').digest('hex')
+  return computedSignature
 }
 
 module.exports = { handler }
