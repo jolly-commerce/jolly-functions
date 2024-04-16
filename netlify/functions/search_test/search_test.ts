@@ -63,7 +63,7 @@ const handler = async (event) => {
     const uploadProductsResponse = await mainUploadProducts(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/branches/${branchUploadProducts}/products:import`, token, uploadProducts);
     response = uploadProductsResponse
   } else if (eventBody.rout == 'getProduct'){
-    const getProductResponse = await mainGetResponse(`https://retail.googleapis.com/v2/projects/la-bourse-aux-livres/locations/global/catalogs/default_catalog/branches/default_branch/products/${productId}`, token);
+    const getProductResponse = await mainGetResponse(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/branches/default_branch/products/${productId}`, token);
     response = getProductResponse
   }
 
