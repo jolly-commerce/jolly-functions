@@ -54,7 +54,7 @@ const handler = async (event) => {
     const searchResponse = await mainSearch(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/servingConfigs/default_search:search`, token, querySeaarch, visitorId, branchSearch, branchCountResultsSearch, facetKeysSearch, filterSearch, offsetSearch, searchOrderBy)
     response = searchResponse
   } else if (eventBody.rout == 'autocomplete') {
-    const autocompleteResponse = await mainGetResponse(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog:completeQuery?query=${querySeaarch}`, token);
+    const autocompleteResponse = await mainGetResponse(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog:completeQuery?query=${querySeaarch}&dataset=user-data`, token);
     response = autocompleteResponse
   } else if (eventBody.rout == 'predict') {
     const predictResponse = await mainPredict(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/servingConfigs/similar_items:predict`, token, predictProducts, visitorId);
