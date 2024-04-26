@@ -51,7 +51,7 @@ const handler = async (event) => {
 
   let response
   if (eventBody.rout == 'search') {
-    const searchResponse = await mainSearch(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/servingConfigs/default_search:search`, token, querySeaarch, visitorId, branchSearch, branchCountResultsSearch, facetKeysSearch, filterSearch, offsetSearch, searchOrderBy)
+    const searchResponse = await mainSearch(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/servingConfigs/search-general:search`, token, querySeaarch, visitorId, branchSearch, branchCountResultsSearch, facetKeysSearch, filterSearch, offsetSearch, searchOrderBy)
     response = searchResponse
   } else if (eventBody.rout == 'autocomplete') {
     const autocompleteResponse = await mainGetResponse(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog:completeQuery?query=${querySeaarch}&dataset=user-data`, token);
