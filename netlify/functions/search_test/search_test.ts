@@ -23,6 +23,7 @@ const handler = async (event) => {
   const originalQuerystring = event.rawQuery
   const signatureFromClient = querystring.parse(originalQuerystring).signature
   const computedSignature = computeSignature(originalQuerystring, searchAppSecretClient)
+  console.log(originalQuerystring);
 
   if (computedSignature != signatureFromClient) {
     return {
@@ -44,8 +45,8 @@ const handler = async (event) => {
   const offsetSearch = eventBody?.offsetSearch
   const searchOrderBy = eventBody?.searchOrderBy
   const productId = eventBody?.productId
-  console.log(event);
-  console.log(querySeaarch);
+  // console.log(event);
+  // console.log(querySeaarch);
 
   const token = await auth.getAccessToken()
 
@@ -62,12 +63,12 @@ const handler = async (event) => {
   } else if (eventBody.rout == 'uploadProducts') {
     const uploadProductsResponse = await mainUploadProducts(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/branches/${branchUploadProducts}/products:import`, token, uploadProducts);
     response = uploadProductsResponse
-  } else if (eventBody.rout == 'getProduct'){
+  } else if (eventBody.rout == 'getProduct') {
     const getProductResponse = await mainGetResponse(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/branches/default_branch/products/${productId}`, token);
     response = getProductResponse
   }
 
-  console.log(response);
+  // console.log(response);
 
   return {
     statusCode: 200,
