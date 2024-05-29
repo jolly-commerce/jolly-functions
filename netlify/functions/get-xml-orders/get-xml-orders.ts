@@ -47,8 +47,8 @@ export const handler: Handler = async (event, context) => {
       CAP_Destinatario: order.shippingAddress.zip,
       Provincia_Destinatario: order.shippingAddress.provinceCode,
       Nazione_Destinatario: order.shippingAddress.countryCodeV2,
-      // Telefono_destinatario: order.shippingAddress.phone,
-      // Email_destinatario: order.email,
+      Telefono_Destinatario: order.shippingAddress.phone,
+      EMail_Destinatario: order.email,
       Ragione_Sociale_Destinazione_Merce: `${billingAddress.firstName} ${billingAddress.lastName}`,
       Indirizzo_Destinazione_Merce: billingAddress.address1,
       Localita_Destinazione_Merce: billingAddress.city,
@@ -56,8 +56,8 @@ export const handler: Handler = async (event, context) => {
       Provincia_Destinazione_Merce: billingAddress.provinceCode,
       Nazione_Destinazione_Merce: billingAddress.countryCodeV2,
       Codice_Vettore: "FERCAM_FLEX",  // order.shippingLines.nodes[0].title
-      // Peso_Carico_Previsto: getOrderTotalWeight(order.fulfillmentOrders.nodes),
-      // Aspetto1_Qta: order.shippingLines.nodes.length,
+      Peso_Carico_Previsto: getOrderTotalWeight(order.fulfillmentOrders.nodes),
+      Aspetto1_Qta: order.shippingLines.nodes.length,
       Righe_Ordine: {
         Riga_Ordine: order.lineItems.nodes.map((line_item, k) => ({
           Codice_Cliente: String(
