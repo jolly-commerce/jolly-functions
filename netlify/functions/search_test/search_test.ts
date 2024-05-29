@@ -23,6 +23,7 @@ const handler = async (event) => {
   const originalQuerystring = event.rawQuery
   const signatureFromClient = querystring.parse(originalQuerystring).signature
   const computedSignature = computeSignature(originalQuerystring, searchAppSecretClient)
+  console.log(originalQuerystring);
 
   if (computedSignature != signatureFromClient) {
     return {
@@ -44,17 +45,17 @@ const handler = async (event) => {
   const offsetSearch = eventBody?.offsetSearch
   const searchOrderBy = eventBody?.searchOrderBy
   const productId = eventBody?.productId
-  console.log(event);
-  console.log(querySeaarch);
+  // console.log(event);
+  // console.log(querySeaarch);
 
   const token = await auth.getAccessToken()
 
   let response
   if (eventBody.rout == 'search') {
-    const searchResponse = await mainSearch(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/servingConfigs/default_search:search`, token, querySeaarch, visitorId, branchSearch, branchCountResultsSearch, facetKeysSearch, filterSearch, offsetSearch, searchOrderBy)
+    const searchResponse = await mainSearch(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/servingConfigs/search-general:search`, token, querySeaarch, visitorId, branchSearch, branchCountResultsSearch, facetKeysSearch, filterSearch, offsetSearch, searchOrderBy)
     response = searchResponse
   } else if (eventBody.rout == 'autocomplete') {
-    const autocompleteResponse = await mainGetResponse(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog:completeQuery?query=${querySeaarch}`, token);
+    const autocompleteResponse = await mainGetResponse(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog:completeQuery?query=${querySeaarch}&dataset=user-data`, token);
     response = autocompleteResponse
   } else if (eventBody.rout == 'predict') {
     const predictResponse = await mainPredict(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/servingConfigs/similar_items:predict`, token, predictProducts, visitorId);
@@ -62,12 +63,12 @@ const handler = async (event) => {
   } else if (eventBody.rout == 'uploadProducts') {
     const uploadProductsResponse = await mainUploadProducts(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/branches/${branchUploadProducts}/products:import`, token, uploadProducts);
     response = uploadProductsResponse
-  } else if (eventBody.rout == 'getProduct'){
-    const getProductResponse = await mainGetResponse(`https://retail.googleapis.com/v2/projects/la-bourse-aux-livres/locations/global/catalogs/default_catalog/branches/default_branch/products/${productId}`, token);
+  } else if (eventBody.rout == 'getProduct') {
+    const getProductResponse = await mainGetResponse(`https://retail.googleapis.com/v2/projects/${projectId}/locations/global/catalogs/default_catalog/branches/default_branch/products/${productId}`, token);
     response = getProductResponse
   }
 
-  console.log(response);
+  // console.log(response);
 
   return {
     statusCode: 200,
