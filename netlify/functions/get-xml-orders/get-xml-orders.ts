@@ -22,7 +22,11 @@ function getOrderTotalWeight(fulfillmentOrders: FullfillmentOrder[]) {
       total += parseFloat(le.weight.value as any as string);
     });
   });
-  return total 
+  return total / 1000
+}
+
+function normalizePhone(phone: string): string  {
+  return phone.replace(/[^0-9]/g , "")
 }
 
 export const handler: Handler = async (event, context) => {
@@ -47,7 +51,7 @@ export const handler: Handler = async (event, context) => {
       CAP_Destinatario: order.shippingAddress.zip,
       Provincia_Destinatario: order.shippingAddress.provinceCode,
       Nazione_Destinatario: order.shippingAddress.countryCodeV2,
-      Telefono_Destinatario: order.shippingAddress.phone,
+      Telefono_Destinatario: normalizePhone(order.shippingAddress.phone),
       EMail_Destinatario: order.email,
       Ragione_Sociale_Destinazione_Merce: `${billingAddress.firstName} ${billingAddress.lastName}`,
       Indirizzo_Destinazione_Merce: billingAddress.address1,
