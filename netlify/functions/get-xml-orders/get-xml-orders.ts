@@ -29,6 +29,19 @@ function normalizePhone(phone: string): string  {
   return phone.replace(/[^0-9]/g , "")
 }
 
+function getDeliveryCode(deliveryTitle: string): string {
+  if (deliveryTitle.includes("SEUR - Entrega entre 2 y 3 días laborables")) {
+    return 'SEUR24'
+  } else if (deliveryTitle.includes("XPO - Entrega entre 5 y 7 días laborables")) {
+    return 'XPOES'
+  } else if (deliveryTitle.includes("SEUR - Entrega entre 3 y 5 días laborables")) {
+    return "SEUR48"
+  } else if (deliveryTitle.includes("XPO - Entrega entre 5 y 7 días laborables")) {
+    return "XPOIS"
+  } 
+  return "FERCAM_FLEX"
+}
+
 export const handler: Handler = async (event, context) => {
   let body: data_type = JSON.parse(event.body);
   
@@ -59,7 +72,7 @@ export const handler: Handler = async (event, context) => {
       CAP_Destinazione_Merce: billingAddress.zip,
       Provincia_Destinazione_Merce: billingAddress.provinceCode,
       Nazione_Destinazione_Merce: billingAddress.countryCodeV2,
-      Codice_Vettore: "FERCAM_FLEX",  // order.shippingLines.nodes[0].title
+      Codice_Vettore: getDeliveryCode(order.shippingLines.nodes[0].title),
       Peso_Carico_Previsto: getOrderTotalWeight(order.fulfillmentOrders.nodes),
       Aspetto1_Qta: order.shippingLines.nodes.length,
       Righe_Ordine: {
