@@ -109,12 +109,7 @@ export const handler: Handler = async (event, context) => {
     { Testata_Ordine: result },
     {
       declaration: { encoding: "UTF-8" },
-      cdataKeys: [
-        "Ragione_Sociale_Destinazione_Merce",
-        "Ragione_Sociale_Destinatario",
-        "Indirizzo_Destinatario",
-        "Indirizzo_Destinazione_Merce",
-      ],
+   
     }
   );
   return {
