@@ -124,11 +124,11 @@ export const handler: Handler = async (event, context) => {
         'N_Observaciones': 'Observaciones'
       };
     
-      return Object.entries(result).reduce((acc, [key, value]) => {
+      return result.map (r => Object.entries(r).reduce((acc, [key, value]) => {
         const newKey = keyMapping[key] || key;
         acc[newKey] = value;
         return acc;
-      }, {});
+      }, {}));
     };
     const getCSV = (orders) => {
       if (!orders || orders.length === 0) return '';
