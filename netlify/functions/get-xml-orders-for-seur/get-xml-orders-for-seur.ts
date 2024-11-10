@@ -1,6 +1,7 @@
 import { Handler } from "@netlify/functions";
 const js2xmlparser = require("js2xmlparser");
 import { FullfillmentOrder, data_type } from "./types";
+import { get } from "http";
 
 // check https://docs.google.com/spreadsheets/d/1Ruaw8xqtg1XsYTtvEPYxbXmF5EiREBs3/edit#gid=1627918533 for more details
 
@@ -104,7 +105,49 @@ export const handler: Handler = async (event, context) => {
       };
     });
 
-  const reponse = js2xmlparser.parse(
+
+    const getCSVJSON = (result) => {
+      const keyMapping = {
+        'Referencia_Envío': 'Referencia Envío',
+        'Nombre': 'Nombre',
+        'Direccion': 'Direccion',
+        'Cod_Postal': 'Cod Postal',
+        'Población': 'Población',
+        'Cod_Pais': 'Cod Pais',
+        'Telefono': 'Telefono',
+        'Email': 'Email',
+        'Servicio': 'Servicio',
+        'Producto': 'Producto',
+        'K_Bultos': 'Bultos',
+        'L_Kilos': 'Kilos',
+        'M_CCC': 'CCC (Sin - FR)',
+        'N_Observaciones': 'Observaciones'
+      };
+    
+      return Object.entries(result).reduce((acc, [key, value]) => {
+        const newKey = keyMapping[key] || key;
+        acc[newKey] = value;
+        return acc;
+      }, {});
+    };
+    const getCSV = (orders) => {
+      if (!orders || orders.length === 0) return '';
+      
+      const headers = Object.keys(orders[0]).join(',');
+      
+      const rows = orders.map(order => {
+        return Object.keys(orders[0]).map(header => {
+          const value = order[header] || '';
+          const escaped = String(value).replace(/"/g, '""');
+          return escaped.includes(',') ? `"${escaped}"` : escaped;
+        }).join(',');
+      });
+    
+      return `${headers}\n${rows.join('\n')}`;
+    };
+  const csvJSON = getCSVJSON(result)
+  const responseCSV = getCSV(csvJSON)
+  const responseXML = js2xmlparser.parse(
     "Ordini_Spedizione",
     { Testata_Ordine: result },
     {
@@ -114,6 +157,6 @@ export const handler: Handler = async (event, context) => {
   );
   return {
     statusCode: 200,
-    body: reponse,
+    body: {responseXML, responseCSV},
   };
 };
