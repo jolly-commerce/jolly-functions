@@ -59,6 +59,19 @@ function getOrderTotalWeight(fulfillmentOrders: FullfillmentOrder[]) {
   return total / 1000;
 }
 
+function getVolume(order) {
+  const volumes =  order.lineItems.map(li => {
+    const hauteur = li.product.hauteur.value
+    const longueur = li.product.longueur.value
+    const largeur = li.product.largeur.value
+    return  (hauteur * largeur * longueur)  / 1000000
+  })
+
+  return volumes.reduce((prev, curr) => {
+    return prev + curr
+  }, 0)
+}
+
 function normalizePhone(phone: string): string {
   if (!phone) {
     return "";
@@ -189,7 +202,7 @@ export const handler: Handler = async (event, context) => {
         "Destination Zipcode": order.shippingAddress.zip,
         Quantity: "1",
         Weight: getOrderTotalWeight(order.fulfillmentOrders.nodes),
-        Volume: "",
+        Volume: getVolume(order),
         "Origin Contact Name": "Luis Vargas Fernandez",
         "Origin Contact Number": "34931173177",
         "Origin Contact Email Address":
