@@ -191,6 +191,6 @@ export const handler: Handler = async (event, context) => {
   );
   return {
     statusCode: 200,
-    body: JSON.stringify({responseXML, responseCSV}),
+    body: JSON.stringify({responseXML, responseXLSX}),
   };
 };
