@@ -59,15 +59,16 @@ function getOrderTotalWeight(fulfillmentOrders: FullfillmentOrder[]) {
   return total / 1000;
 }
 
-function getVolume(fulfillmentOrder) {
-  const volumes =  fulfillmentOrder.lineItems.map(li => {
+function getVolume(fulfillmentOrders) {
+  let result = [];
+  fulfillmentOrders.forEach(fo => fo.lineItems.nodes.forEach(li => {
     const hauteur = li.product.hauteur.value
     const longueur = li.product.longueur.value
     const largeur = li.product.largeur.value
-    return  (hauteur * largeur * longueur)  / 1000000
-  })
+    result.push((hauteur * largeur * longueur)  / 1000000)
+  }))
 
-  return volumes.reduce((prev, curr) => {
+  return result.reduce((prev, curr) => {
     return prev + curr
   }, 0)
 }
