@@ -232,15 +232,9 @@ export const handler: Handler = async (event, context) => {
   };
   const responseCSV = getCSV(result);
   const responseXLSX = await convertCsvStringToXlsxString(responseCSV)
-  const responseXML = js2xmlparser.parse(
-    "Ordini_Spedizione",
-    { Testata_Ordine: result },
-    {
-      declaration: { encoding: "UTF-8" },
-    }
-  );
+
   return {
     statusCode: 200,
-    body: JSON.stringify({ responseXML, responseXLSX }),
+    body: JSON.stringify({ responseCSV, responseXLSX }),
   };
 };
