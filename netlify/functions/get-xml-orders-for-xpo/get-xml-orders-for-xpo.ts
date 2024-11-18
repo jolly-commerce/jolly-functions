@@ -61,7 +61,7 @@ function getOrderTotalWeight(fulfillmentOrders: FullfillmentOrder[]) {
 
 function getVolume(lineItems) {
   let result = [];
-  lineItems.nodes.forEach(li => {
+  lineItems.forEach(li => {
     const hauteur = li.product.hauteur.value
     const longueur = li.product.longueur.value
     const largeur = li.product.largeur.value
