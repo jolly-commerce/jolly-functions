@@ -59,8 +59,8 @@ function getOrderTotalWeight(fulfillmentOrders: FullfillmentOrder[]) {
   return total / 1000;
 }
 
-function getVolume(order) {
-  const volumes =  order.lineItems.map(li => {
+function getVolume(fulfillmentOrder) {
+  const volumes =  fulfillmentOrder.lineItems.map(li => {
     const hauteur = li.product.hauteur.value
     const longueur = li.product.longueur.value
     const largeur = li.product.largeur.value
@@ -202,7 +202,7 @@ export const handler: Handler = async (event, context) => {
         "Destination Zipcode": order.shippingAddress.zip,
         Quantity: "1",
         Weight: getOrderTotalWeight(order.fulfillmentOrders.nodes),
-        Volume: getVolume(order),
+        Volume: getVolume(order.fulfillmentOrders.nodes),
         "Origin Contact Name": "Luis Vargas Fernandez",
         "Origin Contact Number": "34931173177",
         "Origin Contact Email Address":
