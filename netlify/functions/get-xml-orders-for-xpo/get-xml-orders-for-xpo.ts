@@ -59,14 +59,14 @@ function getOrderTotalWeight(fulfillmentOrders: FullfillmentOrder[]) {
   return total / 1000;
 }
 
-function getVolume(fulfillmentOrders) {
+function getVolume(lineItems) {
   let result = [];
-  fulfillmentOrders.forEach(fo => fo.lineItems.nodes.forEach(li => {
+  lineItems.nodes.forEach(li => {
     const hauteur = li.product.hauteur.value
     const longueur = li.product.longueur.value
     const largeur = li.product.largeur.value
     result.push((hauteur * largeur * longueur)  / 1000000)
-  }))
+  })
 
   return result.reduce((prev, curr) => {
     return prev + curr
@@ -203,7 +203,7 @@ export const handler: Handler = async (event, context) => {
         "Destination Zipcode": order.shippingAddress.zip,
         Quantity: "1",
         Weight: getOrderTotalWeight(order.fulfillmentOrders.nodes),
-        Volume: getVolume(order.fulfillmentOrders.nodes),
+        Volume: getVolume(order.lineItems.nodes),
         "Origin Contact Name": "Luis Vargas Fernandez",
         "Origin Contact Number": "34931173177",
         "Origin Contact Email Address":
