@@ -62,10 +62,14 @@ function getOrderTotalWeight(fulfillmentOrders: FullfillmentOrder[]) {
 function getVolume(lineItems) {
   let result = [];
   lineItems.forEach(li => {
-    const hauteur = li.product.hauteur.value
-    const longueur = li.product.longueur.value
-    const largeur = li.product.largeur.value
-    result.push((hauteur * largeur * longueur)  / 1000000)
+    const hauteur = li?.product?.hauteur?.value
+    const longueur = li?.product?.longueur?.value
+    const largeur = li?.product?.largeur?.value
+    if (Number.isNaN(hauteur) || Number.isNaN(longueur) || Number.isNaN(largeur)) {
+      
+    } else {
+      result.push((hauteur * largeur * longueur)  / 1000000)
+    }
   })
 
   return result.reduce((prev, curr) => {
