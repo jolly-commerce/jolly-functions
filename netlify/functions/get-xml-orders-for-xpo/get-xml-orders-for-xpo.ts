@@ -209,6 +209,8 @@ export const handler: Handler = async (event, context) => {
         "Origin Contact Email Address":
           "martorell.pedidos-logistica@fercam.com & martorell.transporte-logistica@fercam.com",
         "Destination Contact Name": `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`,
+        "Destination Contact Phone Number": normalizePhone(order.shippingAddress.phone),
+        "Destination Contact Email Address": order.customer.email,
       };
     });
 
