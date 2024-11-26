@@ -56,7 +56,7 @@ function getOrderTotalWeight(fulfillmentOrders: FullfillmentOrder[]) {
       total += parseFloat(le.weight.value as any as string);
     });
   });
-  return total / 1000;
+  return Math.ceil(total / 1000);
 }
 
 function getVolume(lineItems) {
