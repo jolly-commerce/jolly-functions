@@ -56,7 +56,7 @@ function getOrderTotalWeight(fulfillmentOrders: FullfillmentOrder[]) {
       total += parseFloat(le.weight.value as any as string);
     });
   });
-  return total / 1000;
+  return Math.ceil(total / 1000);
 }
 
 function normalizePhone(phone: string): string {
@@ -133,7 +133,7 @@ export const handler: Handler = async (event, context) => {
         L_Kilos: getOrderTotalWeight(
           order.fulfillmentOrders.nodes
         ),
-        M_CCC: "62739-8",
+        M_CCC: "", //"62739-8",
         N_Observaciones: "",
       };
     });
