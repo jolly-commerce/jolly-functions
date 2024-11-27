@@ -20,7 +20,10 @@ function csvToXlsxString(json) {
       type: "base64",
   });
 
-  return xlsxString;
+  // Construct the data URI string
+  const contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  const dataUri = `data:${contentType};base64,${xlsxString}`;
+  return dataUri;
 }
 // check https://docs.google.com/spreadsheets/d/1Ruaw8xqtg1XsYTtvEPYxbXmF5EiREBs3/edit#gid=1627918533 for more details
 
