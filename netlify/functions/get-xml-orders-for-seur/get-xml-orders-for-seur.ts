@@ -7,34 +7,20 @@ import { Readable } from 'stream';
 import csv from "csv-parser"
 
 
-async function convertCsvStringToXlsxString(csvString) {
-  const rows = [];
+function csvToXlsxString(json) {
 
-  try {
-    // Create readable stream from string
-    const readableStream = Readable.from([csvString]);
+  // Create a workbook and add a worksheet
+  const workbook = XLSX.utils.book_new();
+  const worksheet = XLSX.utils.json_to_sheet(json);
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
 
-    // Parse CSV
-    await new Promise((resolve, reject) => {
-      readableStream
-        .pipe(csv())
-        .on('data', (row) => rows.push(row))
-        .on('end', resolve)
-        .on('error', reject);
-    });
+  // Convert the workbook to a binary string
+  const xlsxString = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "binary",
+  });
 
-    // Create workbook & worksheet
-    const workbook = XLSX.utils.book_new();
-    const worksheet = XLSX.utils.json_to_sheet(rows);
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-
-    // Convert to buffer and then base64
-    const xlsxBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
-    return xlsxBuffer.toString('base64');
-  } catch (error) {
-    console.error('Error:', error);
-    return null;
-  }
+  return xlsxString;
 }
 // check https://docs.google.com/spreadsheets/d/1Ruaw8xqtg1XsYTtvEPYxbXmF5EiREBs3/edit#gid=1627918533 for more details
 
@@ -180,7 +166,7 @@ export const handler: Handler = async (event, context) => {
     };
   const csvJSON = getCSVJSON(result)
   const responseCSV = getCSV(result);
-  const responseXLSX = await convertCsvStringToXlsxString(responseCSV)
+  const responseXLSX = await csvToXlsxString(csvJSON)
   const responseXML = js2xmlparser.parse(
     "Ordini_Spedizione",
     { Testata_Ordine: result },
