@@ -17,7 +17,7 @@ function csvToXlsxString(json) {
   // Convert the workbook to a binary string
   const xlsxString = XLSX.write(workbook, {
       bookType: "xlsx",
-      type: "binary",
+      type: "string",
   });
 
   return xlsxString;
