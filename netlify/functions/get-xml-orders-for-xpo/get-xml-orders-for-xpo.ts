@@ -62,16 +62,17 @@ function getOrderTotalWeight(fulfillmentOrders: FullfillmentOrder[]) {
 function getVolume(lineItems) {
   let result = [];
   lineItems.forEach(li => {
-    const hauteur = li?.product?.hauteur?.value
-    const longueur = li?.product?.longueur?.value
-    const largeur = li?.product?.largeur?.value
+    const hauteur = parseFloat(li?.product?.hauteur?.value.replace(",", "."))
+    const longueur = parseFloat(li?.product?.longueur?.value.replace(",", "."))
+    const largeur = parseFloat(li?.product?.largeur?.value.replace(",", "."))
+    console.log(JSON.stringify({hauteur, longueur, largeur}))
     if (Number.isNaN(hauteur) || Number.isNaN(longueur) || Number.isNaN(largeur)) {
       
     } else {
       result.push((hauteur * largeur * longueur)  / 1000000)
     }
   })
-
+console.log("result", result)
   return result.reduce((prev, curr) => {
     return prev + curr
   }, 0)
@@ -130,46 +131,34 @@ function getSubAccount(order) {
 }
 
 function getPickupDate(order) {
-  if (!order.updatedAt) {
-    return null;
+  if (!order.updatedAt) return null;
+  
+  const date = new Date(order.updatedAt);
+  const dayOfWeek = date.getUTCDay();
+  const timeDecimal = date.getUTCHours() + date.getUTCMinutes() / 100;
+ 
+  let targetDate = new Date(date);
+ 
+  if ((dayOfWeek === 5 && timeDecimal >= 10.01) || 
+      dayOfWeek === 6 || 
+      dayOfWeek === 0 || 
+      (dayOfWeek === 1 && timeDecimal <= 9.59)) {
+    // Set to next Monday
+    targetDate.setUTCDate(date.getUTCDate() + ((8 - dayOfWeek) % 7));
+  } else if ((dayOfWeek === 1 && timeDecimal >= 10.01) || 
+             dayOfWeek === 2 || 
+             (dayOfWeek === 3 && timeDecimal <= 9.59)) {
+    // Set to next Wednesday  
+    targetDate.setUTCDate(date.getUTCDate() + ((10 - dayOfWeek) % 7));
+  } else if ((dayOfWeek === 3 && timeDecimal >= 10.01) || 
+             dayOfWeek === 4 || 
+             (dayOfWeek === 5 && timeDecimal <= 9.59)) {
+    // Set to next Friday
+    targetDate.setUTCDate(date.getUTCDate() + ((12 - dayOfWeek) % 7));
   }
-  const orderDate = order.updatedAt;
-  const date = new Date(orderDate);
-  const dayOfWeek = date.getUTCDay(); // 0-6: Sunday-Saturday
-  const hours = date.getUTCHours();
-  const minutes = date.getUTCMinutes();
-
-  // Convert time to decimal for easier comparison
-  const timeDecimal = hours + minutes / 100;
-
-  // Friday 10:01 to Monday 09:59 -> Monday
-  if (
-    (dayOfWeek === 5 && timeDecimal >= 10.01) ||
-    dayOfWeek === 6 ||
-    dayOfWeek === 0 ||
-    (dayOfWeek === 1 && timeDecimal <= 9.59)
-  ) {
-    return "Monday";
-  }
-
-  // Monday 10:01 to Wednesday 09:59 -> Wednesday
-  if (
-    (dayOfWeek === 1 && timeDecimal >= 10.01) ||
-    dayOfWeek === 2 ||
-    (dayOfWeek === 3 && timeDecimal <= 9.59)
-  ) {
-    return "Wednesday";
-  }
-
-  // Wednesday 10:01 to Friday 09:59 -> Friday
-  if (
-    (dayOfWeek === 3 && timeDecimal >= 10.01) ||
-    dayOfWeek === 4 ||
-    (dayOfWeek === 5 && timeDecimal <= 9.59)
-  ) {
-    return "Friday";
-  }
-}
+ 
+  return targetDate.toLocaleDateString('en-GB'); // Returns DD/MM/YYYY format
+ }
 
 export const handler: Handler = async (event, context) => {
   let body: data_type = JSON.parse(event.body);
@@ -196,9 +185,9 @@ export const handler: Handler = async (event, context) => {
         "Origin Country": "ES",
         "Origin Zipcode": "8635",
         "Pickup Date": getPickupDate(order),
-        "Date Flexibility": "No",
-        "Pickup Time": "Between 3:00 p.m. and 5:00 p.m.",
-        "Time Flexibility": "No",
+        "Date Flexibility": "Specific",
+        "Pickup Time": "15:00",
+        "Time Flexibility": "Specific",
         "Destination Name": `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`,
         "Destination Address Line 1": order.shippingAddress.address1,
         "Destination Address Line 2": order.shippingAddress.address2,
