@@ -194,7 +194,7 @@ export const handler: Handler = async (event, context) => {
         "Destination City": order.shippingAddress.city,
         "Destination Country": "ES",
         "Destination Zipcode": order.shippingAddress.zip,
-        Quantity: "1",
+        Quantity: 1,
         Weight: getOrderTotalWeight(order.fulfillmentOrders.nodes),
         Volume: getVolume(order.lineItems.nodes),
         "Origin Contact Name": "Luis Vargas Fernandez",
@@ -206,8 +206,8 @@ export const handler: Handler = async (event, context) => {
         "Destination Contact Email Address": order.customer.email,
         "Commodity": "",
         "Pallet quantity": "91",
-        "Pallet weight": "21",
-        "Pallet volume": "0.32",
+        "Pallet weight": 21,
+        "Pallet volume": 0.32,
         "Total weight": getOrderTotalWeight(order.fulfillmentOrders.nodes) + 21,
         "Total volume": getVolume(order.lineItems.nodes) + 0.32,
       };
@@ -231,6 +231,7 @@ export const handler: Handler = async (event, context) => {
 
     return `${headers}\n${rows.join("\n")}`;
   };
+  console.log(result)
   const responseCSV = getCSV(result);
   const responseXLSX = await convertCsvStringToXlsxString(responseCSV)
 
