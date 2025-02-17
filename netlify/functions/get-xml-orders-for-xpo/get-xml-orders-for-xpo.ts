@@ -204,6 +204,12 @@ export const handler: Handler = async (event, context) => {
         "Destination Contact Name": `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`,
         "Destination Contact Phone Number": normalizePhone(order.shippingAddress.phone),
         "Destination Contact Email Address": order.customer.email,
+        "Commodity": "",
+        "Pallet quantity": "91",
+        "Pallet weight": "21",
+        "Pallet volume": "0.32",
+        "Total weight": getOrderTotalWeight(order.fulfillmentOrders.nodes) + 21,
+        "Total volume": getVolume(order.lineItems.nodes) + 0.32,
       };
     });
 
@@ -220,7 +226,7 @@ export const handler: Handler = async (event, context) => {
           const escaped = String(value).replace(/"/g, '""');
           return escaped.includes(",") ? `"${escaped}"` : escaped;
         })
-        .join(",");
+        .join(";");
     });
 
     return `${headers}\n${rows.join("\n")}`;
