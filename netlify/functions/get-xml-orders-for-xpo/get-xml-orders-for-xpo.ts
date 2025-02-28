@@ -123,11 +123,8 @@ function getServicio(order): number {
     return 13;
   }
 }
-function getSubAccount(order) {
-  if (order.tags && order.tags.includes("Pro Site")) {
+function getSubAccount() {
   return '687590-BELVEO SPAIN SL'
-  }
-  return '68759001-BELVEO SPAIN SL'
 }
 
 function getPickupDate(order) {
@@ -172,7 +169,7 @@ export const handler: Handler = async (event, context) => {
     }) // we need to skip orders without shipping line titles
     .map((order) => {
       return {
-        "Sub-Account": getSubAccount(order),
+        "Sub-Account": getSubAccount(),
         "Depot Information": "CASTELLBISBAL",
         "Customer Reference": String(
           order.id.replace("gid://shopify/Order/", "")
@@ -232,10 +229,9 @@ export const handler: Handler = async (event, context) => {
   };
   console.log(result)
   const responseCSV = getCSV(result);
-  const responseXLSX = await convertCsvStringToXlsxString(responseCSV)
 
   return {
     statusCode: 200,
-    body: JSON.stringify({ responseCSV, responseXLSX }),
+    body: JSON.stringify({ responseCSV }),
   };
 };
