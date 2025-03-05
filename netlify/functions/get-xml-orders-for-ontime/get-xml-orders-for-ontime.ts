@@ -97,10 +97,10 @@ function getVolume(lineItems) {
       result.push((hauteur * largeur * longueur)  / 1000000)
     }
   })
-console.log("result", result)
-  const  result.reduce((prev, curr) => {
+  const end_result = result.reduce((prev, curr) => {
     return prev + curr
   }, 0)
+  return end_result.toFixed(2).replace(".", ",")
 }
 export const handler: Handler = async (event, context) => {
   let body: data_type = JSON.parse(event.body);
@@ -162,14 +162,14 @@ export const handler: Handler = async (event, context) => {
     const getCSV = (orders) => {
       if (!orders || orders.length === 0) return '';
       
-      const headers = Object.keys(orders[0]).join(',');
+      const headers = Object.keys(orders[0]).join(';');
       
       const rows = orders.map(order => {
         return Object.keys(orders[0]).map(header => {
           const value = order[header] || '';
           const escaped = String(value).replace(/"/g, '""');
-          return escaped.includes(',') ? `"${escaped}"` : escaped;
-        }).join(',');
+          return escaped.includes(';') ? `"${escaped}"` : escaped;
+        }).join(';');
       });
     
       return `${headers}\n${rows.join('\n')}`;
