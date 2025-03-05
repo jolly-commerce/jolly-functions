@@ -62,26 +62,16 @@ function getDeliveryCode(order: any): string {
   if (!deliveryTitle) {
     deliveryTitle = getDeliveryTitle(order);
   }
-  if (deliveryTitle.includes("SEUR - Entrega entre 2 y 3 días laborables")) {
+  if (deliveryTitle.includes("ONTIME - Entrega entre 2 y 3 días laborables")) {
     return "SEUR24";
   } else if (
-    deliveryTitle.includes("XPO - Entrega entre 5 y 7 días laborables")
-  ) {
-    return "XPOES";
-  } else if (
     deliveryTitle.includes(
-      "SEUR - Entrega entre 3 y 5 días laborables (Baleares)"
+      "ONTIME - Entrega entre 3 y 5 días laborables (Baleares)"
     )
   ) {
     return "SEUR48";
-  } else if (
-    deliveryTitle.includes(
-      "XPO - Entrega entre 5 y 7 días laborables (Baleares)"
-    )
-  ) {
-    return "XPOIS";
-  }
-  return "FERCAM_FLEX";
+  } 
+  return "SEUR24";
 }
 function getServicio(order): number {
   const deliveryCode = getDeliveryCode(order);
@@ -94,11 +84,34 @@ function getServicio(order): number {
   }
 }
 
+function getVolume(lineItems) {
+  let result = [];
+  lineItems.forEach(li => {
+    const hauteur = parseFloat(li?.product?.hauteur?.value.replace(",", "."))
+    const longueur = parseFloat(li?.product?.longueur?.value.replace(",", "."))
+    const largeur = parseFloat(li?.product?.largeur?.value.replace(",", "."))
+    console.log(JSON.stringify({hauteur, longueur, largeur}))
+    if (Number.isNaN(hauteur) || Number.isNaN(longueur) || Number.isNaN(largeur)) {
+      
+    } else {
+      result.push((hauteur * largeur * longueur)  / 1000000)
+    }
+  })
+console.log("result", result)
+  const  result.reduce((prev, curr) => {
+    return prev + curr
+  }, 0)
+}
 export const handler: Handler = async (event, context) => {
   let body: data_type = JSON.parse(event.body);
 
   const result = body
-     // we need to skip orders without shipping line titles
+    .filter((order) => {
+      return (
+        getDeliveryCode(order).includes("SEUR") &&
+        order.shippingLines?.nodes[0]?.title
+      );
+    }) // we need to skip orders without shipping line titles
     .map((order) => {
       return {
         Referencia_Envío: String(
@@ -111,15 +124,15 @@ export const handler: Handler = async (event, context) => {
         Cod_Pais: "ES",
         Telefono: normalizePhone(order.shippingAddress.phone),
         Email: order.email,
-        Producto: 2,
-        K_Bultos: order.lineItems.nodes.length,
-        L_Kilos: getOrderTotalWeight(
+        Producto: 17,
+        Bultos: order.lineItems.nodes.length,
+        Kilos: getOrderTotalWeight(
           order.fulfillmentOrders.nodes
         ),
-        M_CCC: "", //"62739-8",
-        N_Observaciones: "",
+        Volumen: getVolume(order.lineItems.nodes),
       };
     });
+
 
 
     const getCSVJSON = (result) => {
