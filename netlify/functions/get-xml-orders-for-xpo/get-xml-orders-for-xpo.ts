@@ -123,11 +123,8 @@ function getServicio(order): number {
     return 13;
   }
 }
-function getSubAccount(order) {
-  if (order.tags && order.tags.includes("Pro Site")) {
+function getSubAccount() {
   return '687590-BELVEO SPAIN SL'
-  }
-  return '68759001-BELVEO SPAIN SL'
 }
 
 function getPickupDate(order) {
@@ -172,7 +169,7 @@ export const handler: Handler = async (event, context) => {
     }) // we need to skip orders without shipping line titles
     .map((order) => {
       return {
-        "Sub-Account": getSubAccount(order),
+        "Sub-Account": getSubAccount(),
         "Depot Information": "CASTELLBISBAL",
         "Customer Reference": String(
           order.id.replace("gid://shopify/Order/", "")
@@ -199,14 +196,13 @@ export const handler: Handler = async (event, context) => {
         Volume: getVolume(order.lineItems.nodes),
         "Origin Contact Name": "Luis Vargas Fernandez",
         "Origin Contact Number": "34931173177",
-        "Origin Contact Email Address":
-          "martorell.pedidos-logistica@fercam.com & martorell.transporte-logistica@fercam.com",
+        "Origin Contact Email Address": "martorell.pedidos-logistica@fercam.com",
         "Destination Contact Name": `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`,
         "Destination Contact Phone Number": normalizePhone(order.shippingAddress.phone),
         "Destination Contact Email Address": order.customer.email,
-        "Commodity": "",
-        "Pallet quantity": "91",
-        "Pallet weight": 21,
+        "Commodity": 91,
+        "Pallet quantity": 1,
+        "Pallet weight": 27,
         "Pallet volume": 0.32,
         "Total weight": getOrderTotalWeight(order.fulfillmentOrders.nodes) + 21,
         "Total volume": getVolume(order.lineItems.nodes) + 0.32,
@@ -217,7 +213,7 @@ export const handler: Handler = async (event, context) => {
   const getCSV = (orders) => {
     if (!orders || orders.length === 0) return "";
 
-    const headers = Object.keys(orders[0]).join(",");
+    const headers = Object.keys(orders[0]).join(";");
 
     const rows = orders.map((order) => {
       return Object.keys(orders[0])
@@ -233,10 +229,9 @@ export const handler: Handler = async (event, context) => {
   };
   console.log(result)
   const responseCSV = getCSV(result);
-  const responseXLSX = await convertCsvStringToXlsxString(responseCSV)
 
   return {
     statusCode: 200,
-    body: JSON.stringify({ responseCSV, responseXLSX }),
+    body: JSON.stringify({ responseCSV }),
   };
 };
