@@ -204,7 +204,7 @@ export const handler: Handler = async (event, context) => {
         "Pallet quantity": 1,
         "Pallet weight": 27,
         "Pallet volume": 0.32,
-        "Total weight": getOrderTotalWeight(order.fulfillmentOrders.nodes) + 21,
+        "Total weight": getOrderTotalWeight(order.fulfillmentOrders.nodes) + 27,
         "Total volume": getVolume(order.lineItems.nodes) + 0.32,
       };
     });
