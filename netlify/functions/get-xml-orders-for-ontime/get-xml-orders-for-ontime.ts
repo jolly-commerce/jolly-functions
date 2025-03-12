@@ -106,7 +106,6 @@ export const handler: Handler = async (event, context) => {
   let body: data_type = JSON.parse(event.body);
 
   const result = body
-
     .map((order) => {
       return {
         Referencia_Envío: String(
