@@ -57,11 +57,9 @@ function getDeliveryCode(order: any): string {
     )
   ) {
     return "XPOIS";
-  } else if (deliveryTitle.toLowerCase().includes("ontime") && deliveryTitle.toLowerCase().includes("2 y 3")) {
-    return "ON_TIMEES";
-  } else if (deliveryTitle.toLowerCase().includes("ontime") && deliveryTitle.toLowerCase().includes("baleares")) {
-    return "ON_TIMEIS";
-  }
+  } else if (deliveryTitle.toLowerCase().includes("ontime")) {
+    return "ON_TIME";
+  } 
   return "FERCAM_FLEX";
 }
 
