@@ -161,12 +161,6 @@ export const handler: Handler = async (event, context) => {
   let body: data_type = JSON.parse(event.body);
 
   const result = body
-    .filter((order) => {
-      return (
-        getDeliveryCode(order).includes("XPO") &&
-        order.shippingLines?.nodes[0]?.title
-      );
-    }) // we need to skip orders without shipping line titles
     .map((order) => {
       return {
         "Sub-Account": getSubAccount(),
