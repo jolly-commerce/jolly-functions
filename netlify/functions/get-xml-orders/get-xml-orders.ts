@@ -39,23 +39,13 @@ function getDeliveryCode(order: any): string {
   if (!deliveryTitle) {
     deliveryTitle = getDeliveryTitle(order);
   }
-  if (deliveryTitle.includes("SEUR - Entrega entre 2 y 3 días laborables")) {
+  if (deliveryTitle.includes("SEUR - Entrega entre 2 y 3 días laborables") || deliveryTitle.includes("SEUR GRATIS - Entrega entre 2 y 3 días laborables")) {
     return "SEUR24";
-  } else if (
-    deliveryTitle.includes("XPO - Entrega entre 5 y 7 días laborables")
-  ) {
+  } else if (deliveryTitle.includes("XPO - Entrega entre 5 y 7 días laborables") || deliveryTitle.includes("XPO - Entrega entre 4 y 5 días laborables")) {
     return "XPOES";
-  } else if (
-    deliveryTitle.includes(
-      "SEUR - Entrega entre 3 y 5 días laborables (Baleares)"
-    )
-  ) {
+  } else if (deliveryTitle.includes("SEUR - Entrega entre 3 y 5 días laborables (Baleares)")) {
     return "SEUR48";
-  } else if (
-    deliveryTitle.includes(
-      "XPO - Entrega entre 5 y 7 días laborables (Baleares)"
-    )
-  ) {
+  } else if (deliveryTitle.includes("XPO - Entrega entre 5 y 7 días laborables (Baleares)") || deliveryTitle.includes("XPO - Entrega entre 6 y 7 días laborables (Baleares)")) {
     return "XPOIS";
   } else if (deliveryTitle.toLowerCase().includes("ontime")) {
     return "ON_TIME";

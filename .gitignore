@@ -3,3 +3,4 @@
 node_modules
 .env
 data_google_cloud_products.json
+.shopify
