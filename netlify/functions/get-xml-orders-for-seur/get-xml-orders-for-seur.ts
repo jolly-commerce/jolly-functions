@@ -98,7 +98,12 @@ export const handler: Handler = async (event, context) => {
   let body: data_type = JSON.parse(event.body);
 
   const result = body
-     // we need to skip orders without shipping line titles
+    .filter((order) => {
+      return (
+        getDeliveryCode(order).includes("SEUR") &&
+        order.shippingLines?.nodes[0]?.title
+      );
+    }) // we need to skip orders without shipping line titles
     .map((order) => {
       return {
         Referencia_Envío: String(
@@ -111,6 +116,7 @@ export const handler: Handler = async (event, context) => {
         Cod_Pais: "ES",
         Telefono: normalizePhone(order.shippingAddress.phone),
         Email: order.email,
+        Servicio: getServicio(order),
         Producto: 2,
         K_Bultos: order.lineItems.nodes.length,
         L_Kilos: getOrderTotalWeight(
