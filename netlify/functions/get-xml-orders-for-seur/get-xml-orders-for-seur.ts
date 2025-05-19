@@ -64,34 +64,42 @@ function getDeliveryCode(order: any): string {
   }
   if (deliveryTitle.includes("SEUR - Entrega entre 2 y 3 días laborables")) {
     return "SEUR24";
-  } else if (
-    deliveryTitle.includes("XPO - Entrega entre 5 y 7 días laborables")
-  ) {
+  }
+  else if (deliveryTitle.includes("XPO - Entrega entre 5 y 7 días laborables")) {
     return "XPOES";
-  } else if (
-    deliveryTitle.includes(
-      "SEUR - Entrega entre 3 y 5 días laborables (Baleares)"
-    )
-  ) {
+  }
+  else if (deliveryTitle.includes("SEUR - Entrega entre 3 y 5 días laborables (Baleares)")) {
     return "SEUR48";
-  } else if (
-    deliveryTitle.includes(
-      "XPO - Entrega entre 5 y 7 días laborables (Baleares)"
-    )
-  ) {
+  }
+  else if (deliveryTitle.includes("XPO - Entrega entre 5 y 7 días laborables (Baleares)")) {
     return "XPOIS";
   }
   return "FERCAM_FLEX";
 }
 function getServicio(order): number {
   const deliveryCode = getDeliveryCode(order);
+  const deliveryCountry = order.shippingAddress?.countryCodeV2 === "PT" ? "PT" : "ES";
+  if (deliveryCountry.includes("PT")) {
+    return 1;
+  }
   if (deliveryCode.includes('24')) {
-    return 1
+    return 1;
   } else if (deliveryCode.includes('48')) {
-    return 15
+    return 15;
   } else {
     return 13;
   }
+}
+
+function formatZipCode(zip: string): string {
+  if (!zip) return "";
+  // Remove any existing hyphens and spaces
+  const cleanZip = zip.replace(/[-\s]/g, "");
+  // Ensure 7 digits for Portuguese zip codes
+  if (cleanZip.length === 7) {
+    return cleanZip;
+  }
+  return cleanZip;
 }
 
 export const handler: Handler = async (event, context) => {
@@ -106,22 +114,18 @@ export const handler: Handler = async (event, context) => {
     }) // we need to skip orders without shipping line titles
     .map((order) => {
       return {
-        Referencia_Envío: String(
-          order.id.replace("gid://shopify/Order/", "")
-        ).slice(0, -1),
+        Referencia_Envío: String(order.id.replace("gid://shopify/Order/", "")).slice(0, -1),
         Nombre: `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`,
         Direccion: order.shippingAddress.address1,
-        Cod_Postal: order.shippingAddress.zip,
+        Cod_Postal: formatZipCode(order.shippingAddress.zip),
         Población: order.shippingAddress.city,
-        Cod_Pais: "ES",
+        Cod_Pais: order.shippingAddress?.countryCodeV2 === "PT" ? "PT" : "ES",
         Telefono: normalizePhone(order.shippingAddress.phone),
         Email: order.email,
-        Servicio: getServicio(order),
+        Servicio: getServicio(order),// neeed to update
         Producto: 2,
         K_Bultos: order.lineItems.nodes.length,
-        L_Kilos: getOrderTotalWeight(
-          order.fulfillmentOrders.nodes
-        ),
+        L_Kilos: getOrderTotalWeight(order.fulfillmentOrders.nodes),
         M_CCC: "", //"62739-8",
         N_Observaciones: "",
       };

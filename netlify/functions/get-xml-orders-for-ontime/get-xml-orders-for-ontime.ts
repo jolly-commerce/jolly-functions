@@ -64,11 +64,8 @@ function getDeliveryCode(order: any): string {
   }
   if (deliveryTitle.includes("ONTIME - Entrega entre 2 y 3 días laborables")) {
     return "SEUR24";
-  } else if (
-    deliveryTitle.includes(
-      "ONTIME - Entrega entre 3 y 5 días laborables (Baleares)"
-    )
-  ) {
+  }
+  else if (deliveryTitle.includes("ONTIME - Entrega entre 3 y 5 días laborables (Baleares)")) {
     return "SEUR48";
   } 
   return "SEUR24";
@@ -102,27 +99,48 @@ function getVolume(lineItems) {
   }, 0)
   return end_result.toFixed(2).replace(".", ",")
 }
+
+function formatZipCode(zip: string): string {
+  if (!zip) return "";
+  // Remove any existing hyphens and spaces
+  const cleanZip = zip.replace(/[-\s]/g, "");
+  // Ensure 7 digits for Portuguese zip codes
+  if (cleanZip.length === 7) {
+    return cleanZip;
+  }
+  return cleanZip;
+}
+
+function getProducto(order): number {
+  const isPortugal = order.shippingAddress?.countryCodeV2 === "PT";
+  if (!isPortugal) return 17; // Spain gets 17
+  
+  // For Portugal orders, check if any product is longer than 240cm
+  const hasLongProduct = order.lineItems.nodes.some(item => {
+    const length = parseFloat(item?.product?.longueur?.value?.replace(",", "."));
+    return !Number.isNaN(length) && length > 240;
+  });
+  
+  return hasLongProduct ? 60 : 70; // Portugal gets 60 or 70 based on product length
+}
+
 export const handler: Handler = async (event, context) => {
   let body: data_type = JSON.parse(event.body);
 
   const result = body
     .map((order) => {
       return {
-        Referencia_Envío: String(
-          order.id.replace("gid://shopify/Order/", "")
-        ).slice(0, -1),
+        Referencia_Envío: String(order.id.replace("gid://shopify/Order/", "")).slice(0, -1),
         Nombre: `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`,
         Direccion: order.shippingAddress.address1,
-        Cod_Postal: order.shippingAddress.zip,
+        Cod_Postal: formatZipCode(order.shippingAddress.zip),
         Población: order.shippingAddress.city,
-        Cod_Pais: "ES",
+        Cod_Pais: order.shippingAddress?.countryCodeV2 === "PT" ? "PT" : "ES",
         Telefono: normalizePhone(order.shippingAddress.phone),
         Email: order.email,
-        Producto: 17,
+        Producto: getProducto(order),
         Bultos: order.lineItems.nodes.length,
-        Kilos: getOrderTotalWeight(
-          order.fulfillmentOrders.nodes
-        ),
+        Kilos: getOrderTotalWeight(order.fulfillmentOrders.nodes),
         Volumen: getVolume(order.lineItems.nodes),
       };
     });

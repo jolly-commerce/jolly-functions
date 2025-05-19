@@ -157,6 +157,17 @@ function getPickupDate(order) {
   return targetDate.toLocaleDateString('en-GB'); // Returns DD/MM/YYYY format
  }
 
+function formatZipCode(zip: string): string {
+  if (!zip) return "";
+  // Remove any existing hyphens and spaces
+  const cleanZip = zip.replace(/[-\s]/g, "");
+  // For Portuguese zip codes (7 digits), add hyphen after 4 digits  
+  if (cleanZip.length === 7) {
+    return `${cleanZip.slice(0, 4)}-${cleanZip.slice(4)}`;
+  }
+  return cleanZip;
+}
+
 export const handler: Handler = async (event, context) => {
   let body: data_type = JSON.parse(event.body);
 
@@ -183,8 +194,8 @@ export const handler: Handler = async (event, context) => {
         "Destination Address Line 1": order.shippingAddress.address1,
         "Destination Address Line 2": order.shippingAddress.address2,
         "Destination City": order.shippingAddress.city,
-        "Destination Country": "ES",
-        "Destination Zipcode": order.shippingAddress.zip,
+        "Destination Country": order.shippingAddress?.countryCodeV2 === "PT" ? "PT" : "ES",
+        "Destination Zipcode": formatZipCode(order.shippingAddress.zip),
         Quantity: 1,
         Weight: getOrderTotalWeight(order.fulfillmentOrders.nodes),
         Volume: getVolume(order.lineItems.nodes),
