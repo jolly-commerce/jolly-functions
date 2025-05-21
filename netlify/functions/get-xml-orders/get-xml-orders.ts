@@ -59,10 +59,8 @@ export const handler: Handler = async (event, context) => {
   const result = body
     .filter((order) => order.shippingLines?.nodes[0]?.title) // we need to skip orders without shipping line titles
     .map((order) => {
-      const billingAddress =
-        order.billingAddress != null
-          ? order.billingAddress
-          : order.shippingAddress;
+      const shippingAddress = order.shippingAddress;
+      const billingAddress = order.billingAddress != null ? order.billingAddress : order.shippingAddress;
       return getObjectWithoutEmptyProperties({
         Codice_Cliente: String(
           order.customer.id.replace("gid://shopify/Customer/", "")
@@ -70,20 +68,20 @@ export const handler: Handler = async (event, context) => {
         Numero_Ordine: String(
           order.id.replace("gid://shopify/Order/", "")
         ).slice(0, -1),
-        Ragione_Sociale_Destinatario: `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`,
-        Indirizzo_Destinatario: order.shippingAddress.address1,
-        Localita_Destinatario: order.shippingAddress.city,
-        CAP_Destinatario: order.shippingAddress.zip,
-        Provincia_Destinatario: order.shippingAddress.provinceCode,
-        Nazione_Destinatario: order.shippingAddress.countryCodeV2,
-        Telefono_Destinatario: normalizePhone(order.shippingAddress.phone),
+        Ragione_Sociale_Destinatario: `${billingAddress.firstName} ${billingAddress.lastName}`,
+        Indirizzo_Destinatario: billingAddress.address1,
+        Localita_Destinatario: billingAddress.city,
+        CAP_Destinatario: billingAddress.zip,
+        Provincia_Destinatario: billingAddress.provinceCode,
+        Nazione_Destinatario: billingAddress.countryCodeV2,
+        Telefono_Destinatario: normalizePhone(billingAddress.phone),
         EMail_Destinatario: order.email,
-        Ragione_Sociale_Destinazione_Merce: `${billingAddress.firstName} ${billingAddress.lastName}`,
-        Indirizzo_Destinazione_Merce: billingAddress.address1,
-        Localita_Destinazione_Merce: billingAddress.city,
-        CAP_Destinazione_Merce: billingAddress.zip,
-        Provincia_Destinazione_Merce: billingAddress.provinceCode,
-        Nazione_Destinazione_Merce: billingAddress.countryCodeV2,
+        Ragione_Sociale_Destinazione_Merce: `${shippingAddress.firstName} ${shippingAddress.lastName}`,
+        Indirizzo_Destinazione_Merce: shippingAddress.address1,
+        Localita_Destinazione_Merce: shippingAddress.city,
+        CAP_Destinazione_Merce: shippingAddress.zip,
+        Provincia_Destinazione_Merce: shippingAddress.provinceCode,
+        Nazione_Destinazione_Merce: shippingAddress.countryCodeV2,
         Codice_Vettore: getDeliveryCode(order),
         Peso_Carico_Previsto: getOrderTotalWeight(
           order.fulfillmentOrders.nodes
