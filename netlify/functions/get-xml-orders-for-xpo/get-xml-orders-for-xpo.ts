@@ -56,10 +56,20 @@ function getOrderTotalWeight(fulfillmentOrders: FullfillmentOrder[]) {
       total += parseFloat(le.weight.value as any as string);
     });
   });
-  return Math.ceil(total / 1000);
+  return parseFloat(total.toFixed(2));
 }
 
-function getVolume(lineItems) {
+function getOrderTotalQuantity(order: any): number {
+  let total = 0;
+  if (order.lineItems?.nodes) {
+    order.lineItems.nodes.forEach((lineItem: any) => {
+      total += lineItem.quantity || 0;
+    });
+  }
+  return total;
+}
+
+function getVolume(lineItems: any[]) {
   let result = [];
   lineItems.forEach(li => {
     const hauteur = parseFloat(li?.product?.hauteur?.value.replace(",", "."))
@@ -196,7 +206,7 @@ export const handler: Handler = async (event, context) => {
         "Destination City": order.shippingAddress.city,
         "Destination Country": order.shippingAddress?.countryCodeV2 === "PT" ? "PT" : "ES",
         "Destination Zipcode": formatZipCode(order.shippingAddress.zip),
-        Quantity: 1,
+        Quantity: getOrderTotalQuantity(order),
         Weight: getOrderTotalWeight(order.fulfillmentOrders.nodes),
         Volume: getVolume(order.lineItems.nodes),
         "Origin Contact Name": "Luis Vargas Fernandez",

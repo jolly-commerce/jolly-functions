@@ -45,7 +45,7 @@ function getOrderTotalWeight(fulfillmentOrders: FullfillmentOrder[]) {
       total += parseFloat(le.weight.value as any as string);
     });
   });
-  return total.toFixed(2);
+  return parseFloat(total.toFixed(2));
 }
 
 function normalizePhone(phone: string): string {
