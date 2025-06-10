@@ -125,13 +125,26 @@ function getProducto(order): number {
 }
 
 function getPreferredSKU(lineItem: any): string {
-  if (lineItem.variant?.variant_mata_sku) {
-    return String(lineItem.variant.variant_mata_sku);
+  // Check variant_mata_sku
+  if (lineItem.variant?.variant_mata_sku && 
+      typeof lineItem.variant.variant_mata_sku === 'string' && 
+      lineItem.variant.variant_mata_sku.trim() !== '') {
+    return lineItem.variant.variant_mata_sku;
   }
-  if (lineItem.product?.product_meta_sku) {
-    return String(lineItem.product.product_meta_sku);
+  
+  // Check product_meta_sku
+  if (lineItem.product?.product_meta_sku && 
+      typeof lineItem.product.product_meta_sku === 'string' && 
+      lineItem.product.product_meta_sku.trim() !== '') {
+    return lineItem.product.product_meta_sku;
   }
-  return String(lineItem.sku || '');
+  
+  // Fallback to sku
+  if (lineItem.sku && typeof lineItem.sku === 'string') {
+    return lineItem.sku;
+  }
+  
+  return '';
 }
 
 export const handler: Handler = async (event, context) => {
