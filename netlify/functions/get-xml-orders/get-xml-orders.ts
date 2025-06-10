@@ -83,9 +83,7 @@ export const handler: Handler = async (event, context) => {
         Provincia_Destinazione_Merce: shippingAddress.provinceCode,
         Nazione_Destinazione_Merce: shippingAddress.countryCodeV2,
         Codice_Vettore: getDeliveryCode(order),
-        Peso_Carico_Previsto: getOrderTotalWeight(
-          order.fulfillmentOrders.nodes
-        ),
+        Peso_Carico_Previsto: getOrderTotalWeight(order.fulfillmentOrders.nodes),
         Aspetto1_Qta: order.shippingLines.nodes.length,
         Righe_Ordine: {
           Riga_Ordine: order.lineItems.nodes.map((line_item, k) => ({

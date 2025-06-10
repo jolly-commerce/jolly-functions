@@ -42,7 +42,7 @@ function getOrderTotalWeight(fulfillmentOrders: FullfillmentOrder[]) {
   let total = 0;
   fulfillmentOrders.forEach((fo) => {
     fo.lineItems.nodes.forEach((le) => {
-      total += parseFloat(le.weight.value as any as string);
+      total += parseFloat(le.weight.value as any as string) * le.totalQuantity;
     });
   });
   return parseFloat(total.toFixed(2));

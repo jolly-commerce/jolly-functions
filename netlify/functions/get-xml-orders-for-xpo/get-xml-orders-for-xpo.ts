@@ -53,7 +53,7 @@ function getOrderTotalWeight(fulfillmentOrders: FullfillmentOrder[]) {
   let total = 0;
   fulfillmentOrders.forEach((fo) => {
     fo.lineItems.nodes.forEach((le) => {
-      total += parseFloat(le.weight.value as any as string);
+      total += parseFloat(le.weight.value as any as string) * le.totalQuantity;
     });
   });
   return parseFloat(total.toFixed(2));
@@ -70,7 +70,7 @@ function getOrderTotalQuantity(order: any): number {
 }
 
 function getVolume(lineItems: any[]) {
-  let result = [];
+  let result: number[] = [];
   lineItems.forEach(li => {
     const hauteur = parseFloat(li?.product?.hauteur?.value.replace(",", "."))
     const longueur = parseFloat(li?.product?.longueur?.value.replace(",", "."))
@@ -79,7 +79,7 @@ function getVolume(lineItems: any[]) {
     if (Number.isNaN(hauteur) || Number.isNaN(longueur) || Number.isNaN(largeur)) {
       
     } else {
-      result.push((hauteur * largeur * longueur)  / 1000000)
+      result.push(((hauteur * largeur * longueur)  / 1000000) * li.quantity)
     }
   })
 console.log("result", result)
