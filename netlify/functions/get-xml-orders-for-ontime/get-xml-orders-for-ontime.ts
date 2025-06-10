@@ -126,12 +126,12 @@ function getProducto(order): number {
 
 function getPreferredSKU(lineItem: any): string {
   if (lineItem.variant?.variant_mata_sku) {
-    return lineItem.variant.variant_mata_sku;
+    return String(lineItem.variant.variant_mata_sku);
   }
   if (lineItem.product?.product_meta_sku) {
-    return lineItem.product.product_meta_sku;
+    return String(lineItem.product.product_meta_sku);
   }
-  return lineItem.sku;
+  return String(lineItem.sku || '');
 }
 
 export const handler: Handler = async (event, context) => {
