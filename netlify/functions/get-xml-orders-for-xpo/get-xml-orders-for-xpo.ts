@@ -235,7 +235,7 @@ export const handler: Handler = async (event, context) => {
       } else {
         return {
           ...baseFields,
-          SKUs: order.lineItems.nodes.map(getPreferredSKU).join(";"),
+          SKUs: `${order.lineItems.nodes.map(getPreferredSKU).join(";")}`,
         };
       }
     });
