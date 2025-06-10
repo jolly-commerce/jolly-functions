@@ -2,12 +2,14 @@ const fullfillmentOrder = {
   "lineItems": {
     "nodes": [
       {
+        "totalQuantity": 1,
         "weight": {
           "unit": "KILOGRAMS",
           "value": 27.3
         }
       },
       {
+        "totalQuantity": 1,
         "weight": {
           "unit": "KILOGRAMS",
           "value": 0.7
@@ -26,12 +28,14 @@ export const example_data = [
           "lineItems": {
             "nodes": [
               {
+                "totalQuantity": 1,
                 "weight": {
                   "unit": "KILOGRAMS",
                   "value": 27.3
                 }
               },
               {
+                "totalQuantity": 1,
                 "weight": {
                   "unit": "KILOGRAMS",
                   "value": 0.7
@@ -113,12 +117,14 @@ export const example_data = [
           "lineItems": {
             "nodes": [
               {
+                "totalQuantity": 1,
                 "weight": {
                   "unit": "KILOGRAMS",
                   "value": 27.3
                 }
               },
               {
+                "totalQuantity": 1,
                 "weight": {
                   "unit": "KILOGRAMS",
                   "value": 0.7

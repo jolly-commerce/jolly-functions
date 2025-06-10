@@ -15,6 +15,7 @@
         nodes {
           lineItems(first: 30) {
             nodes {
+              totalQuantity
               weight {
                 unit
                 value
