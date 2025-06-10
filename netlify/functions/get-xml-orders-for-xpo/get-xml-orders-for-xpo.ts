@@ -179,11 +179,11 @@ function formatZipCode(zip: string): string {
 }
 
 function getPreferredSKU(lineItem: any): string {
-  if (lineItem.variant?.variant_mata_sku) {
-    return lineItem.variant.variant_mata_sku;
+  if (lineItem.variant?.variant_mata_sku?.value) {
+    return lineItem.variant.variant_mata_sku.value;
   }
-  if (lineItem.product?.product_meta_sku) {
-    return lineItem.product.product_meta_sku;
+  if (lineItem.product?.product_meta_sku?.value) {
+    return lineItem.product.product_meta_sku.value;
   }
   return lineItem.sku;
 }

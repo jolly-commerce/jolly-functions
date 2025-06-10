@@ -125,22 +125,15 @@ function getProducto(order): number {
 }
 
 function getPreferredSKU(lineItem: any): string {
-  // Check variant_mata_sku
-  if (lineItem.variant?.variant_mata_sku && 
-      typeof lineItem.variant.variant_mata_sku === 'string' && 
-      lineItem.variant.variant_mata_sku.trim() !== '') {
-    return lineItem.variant.variant_mata_sku;
+  if (lineItem.variant?.variant_mata_sku?.value) {
+    return lineItem.variant.variant_mata_sku.value;
   }
   
-  // Check product_meta_sku
-  if (lineItem.product?.product_meta_sku && 
-      typeof lineItem.product.product_meta_sku === 'string' && 
-      lineItem.product.product_meta_sku.trim() !== '') {
-    return lineItem.product.product_meta_sku;
+  if (lineItem.product?.product_meta_sku?.value) {
+    return lineItem.product.product_meta_sku.value;
   }
   
-  // Fallback to sku
-  if (lineItem.sku && typeof lineItem.sku === 'string') {
+  if (lineItem.sku) {
     return lineItem.sku;
   }
   
