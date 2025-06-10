@@ -102,6 +102,16 @@ function formatZipCode(zip: string): string {
   return cleanZip;
 }
 
+function getPreferredSKU(lineItem: any): string {
+  if (lineItem.variant?.variant_mata_sku) {
+    return lineItem.variant.variant_mata_sku;
+  }
+  if (lineItem.product?.product_meta_sku) {
+    return lineItem.product.product_meta_sku;
+  }
+  return lineItem.sku;
+}
+
 export const handler: Handler = async (event, context) => {
   let body: data_type = JSON.parse(event.body);
 
@@ -113,7 +123,8 @@ export const handler: Handler = async (event, context) => {
       );
     }) // we need to skip orders without shipping line titles
     .map((order) => {
-      return {
+      const shouldHideSKUs = order.note && typeof order.note === 'string' && order.note.includes('belveo.es');
+      const baseFields = {
         Referencia_Envío: String(order.id.replace("gid://shopify/Order/", "")).slice(0, -1),
         Nombre: `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`,
         Direccion: order.shippingAddress.address1,
@@ -129,10 +140,22 @@ export const handler: Handler = async (event, context) => {
         M_CCC: "", //"62739-8",
         N_Observaciones: "",
       };
+      if (shouldHideSKUs) {
+        return baseFields;
+      } else {
+        return {
+          ...baseFields,
+          SKUs: order.lineItems.nodes.map(getPreferredSKU).join(";"),
+        };
+      }
     });
 
 
     const getCSVJSON = (result) => {
+      // Check if any order has SKUs
+      const hasSKUs = result.some(r => 'SKUs' in r);
+
+      // Build key mapping dynamically
       const keyMapping = {
         'Referencia_Envío': 'Referencia Envío',
         'Nombre': 'Nombre',
@@ -149,7 +172,10 @@ export const handler: Handler = async (event, context) => {
         'M_CCC': 'CCC (Sin - FR)',
         'N_Observaciones': 'Observaciones'
       };
-    
+      if (hasSKUs) {
+        keyMapping['SKUs'] = 'SKUs';
+      }
+      
       return result.map (r => Object.entries(r).reduce((acc, [key, value]) => {
         const newKey = keyMapping[key] || key;
         acc[newKey] = value;

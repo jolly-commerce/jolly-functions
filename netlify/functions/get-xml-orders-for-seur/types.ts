@@ -18,6 +18,7 @@ const fullfillmentOrder = {
 }
 export const example_data = [
   {
+    note: undefined,
     "id": "gid://shopify/Order/5970757910875",
     "fulfillmentOrders": {
       "nodes": [
@@ -104,6 +105,7 @@ export const example_data = [
     "fulfillments": []
   },
   {
+    note: undefined,
     "id": "gid://shopify/Order/5970757910875",
     "fulfillmentOrders": {
       "nodes": [
@@ -192,5 +194,5 @@ export const example_data = [
   
 ];
 
-export type data_type = typeof example_data;
+export type data_type = Array<typeof example_data[0] & { note?: string | null }>;
 export type FullfillmentOrder = typeof fullfillmentOrder

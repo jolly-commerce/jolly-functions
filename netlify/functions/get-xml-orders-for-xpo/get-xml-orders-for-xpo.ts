@@ -178,20 +178,28 @@ function formatZipCode(zip: string): string {
   return cleanZip;
 }
 
+function getPreferredSKU(lineItem: any): string {
+  if (lineItem.variant?.variant_mata_sku) {
+    return lineItem.variant.variant_mata_sku;
+  }
+  if (lineItem.product?.product_meta_sku) {
+    return lineItem.product.product_meta_sku;
+  }
+  return lineItem.sku;
+}
+
 export const handler: Handler = async (event, context) => {
   let body: data_type = JSON.parse(event.body);
 
   const result = body
     .map((order) => {
-      return {
+      const shouldHideSKUs = order.note && typeof order.note === 'string' && order.note.includes('belveo.es');
+      const baseFields = {
         "Sub-Account": getSubAccount(),
         "Depot Information": "CASTELLBISBAL",
-        "Customer Reference": String(
-          order.id.replace("gid://shopify/Order/", "")
-        ).slice(0, -1),
+        "Customer Reference": String(order.id.replace("gid://shopify/Order/", "")).slice(0, -1),
         "Origin Name": "FERCAM",
-        "Origin Address Line 1":
-          "Av. Salvador Dalì, parcela 16 vial Rierai - Poligono Industrial Can Margarit",
+        "Origin Address Line 1": "Av. Salvador Dalì, parcela 16 vial Rierai - Poligono Industrial Can Margarit",
         "Origin Address Line 2": "",
         "Origin City": "Sant Esteve de Sesrovires",
         "Origin Country": "ES",
@@ -222,6 +230,14 @@ export const handler: Handler = async (event, context) => {
         "Total weight": getOrderTotalWeight(order.fulfillmentOrders.nodes) + 27,
         "Total volume": getVolume(order.lineItems.nodes) + 0.32,
       };
+      if (shouldHideSKUs) {
+        return baseFields;
+      } else {
+        return {
+          ...baseFields,
+          SKUs: order.lineItems.nodes.map(getPreferredSKU).join(";"),
+        };
+      }
     });
 
  
