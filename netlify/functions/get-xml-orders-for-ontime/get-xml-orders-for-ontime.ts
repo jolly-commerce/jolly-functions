@@ -124,28 +124,11 @@ function getProducto(order): number {
   return hasLongProduct ? 60 : 70; // Portugal gets 60 or 70 based on product length
 }
 
-function getPreferredSKU(lineItem: any): string {
-  if (lineItem.variant?.variant_mata_sku?.value) {
-    return lineItem.variant.variant_mata_sku.value;
-  }
-  
-  if (lineItem.product?.product_meta_sku?.value) {
-    return lineItem.product.product_meta_sku.value;
-  }
-  
-  if (lineItem.sku) {
-    return lineItem.sku;
-  }
-  
-  return '';
-}
-
 export const handler: Handler = async (event, context) => {
   let body: data_type = JSON.parse(event.body);
 
   const result = body
     .map((order) => {
-      const shouldHideSKUs = order.note && typeof order.note === 'string' && order.note.includes('belveo.es');
       const baseFields = {
         Referencia_Envío: String(order.id.replace("gid://shopify/Order/", "")).slice(0, -1),
         Nombre: `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`,
@@ -160,22 +143,12 @@ export const handler: Handler = async (event, context) => {
         Kilos: getOrderTotalWeight(order.fulfillmentOrders.nodes),
         Volumen: getVolume(order.lineItems.nodes),
       };
-      if (shouldHideSKUs) {
-        return baseFields;
-      } else {
-        return {
-          ...baseFields,
-          SKUs: order.lineItems.nodes.map(getPreferredSKU).join(";"),
-        };
-      }
+      return baseFields;
     });
 
 
 
     const getCSVJSON = (result) => {
-      // Check if any order has SKUs
-      const hasSKUs = result.some(r => 'SKUs' in r);
-
       const keyMapping = {
         'Referencia_Envío': 'Referencia Envío',
         'Nombre': 'Nombre',
@@ -191,11 +164,7 @@ export const handler: Handler = async (event, context) => {
         'L_Kilos': 'Kilos',
         'M_CCC': 'CCC (Sin - FR)',
         'N_Observaciones': 'Observaciones',
-        'SKUs': 'SKUs'
       };
-      if (!hasSKUs) {
-        delete keyMapping['SKUs'];
-      }
       
       return result.map (r => Object.entries(r).reduce((acc, [key, value]) => {
         const newKey = keyMapping[key] || key;

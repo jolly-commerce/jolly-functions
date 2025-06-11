@@ -178,22 +178,11 @@ function formatZipCode(zip: string): string {
   return cleanZip;
 }
 
-function getPreferredSKU(lineItem: any): string {
-  if (lineItem.variant?.variant_mata_sku?.value) {
-    return lineItem.variant.variant_mata_sku.value;
-  }
-  if (lineItem.product?.product_meta_sku?.value) {
-    return lineItem.product.product_meta_sku.value;
-  }
-  return lineItem.sku;
-}
-
 export const handler: Handler = async (event, context) => {
   let body: data_type = JSON.parse(event.body);
 
   const result = body
     .map((order) => {
-      const shouldHideSKUs = order.note && typeof order.note === 'string' && order.note.includes('belveo.es');
       const baseFields = {
         "Sub-Account": getSubAccount(),
         "Depot Information": "CASTELLBISBAL",
@@ -230,14 +219,7 @@ export const handler: Handler = async (event, context) => {
         "Total weight": getOrderTotalWeight(order.fulfillmentOrders.nodes) + 27,
         "Total volume": getVolume(order.lineItems.nodes) + 0.32,
       };
-      if (shouldHideSKUs) {
-        return baseFields;
-      } else {
-        return {
-          ...baseFields,
-          SKUs: order.lineItems.nodes.map(getPreferredSKU).join("@"),
-        };
-      }
+      return baseFields;
     });
 
  
