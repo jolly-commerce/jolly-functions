@@ -53,12 +53,15 @@ function getDeliveryCode(order: any): string {
   return "FERCAM_FLEX";
 }
 
-function getPreferredSKU(lineItem: any): string {
-  if (lineItem.variant?.variant_mata_sku) {
-    return lineItem.variant.variant_mata_sku;
-  }
-  if (lineItem.product?.product_meta_sku) {
-    return lineItem.product.product_meta_sku;
+function getPreferredSKU(lineItem: any, note?: string | null): string {
+  if (note && typeof note === "string" && note.includes("belveo.es")) {
+    if (lineItem.variant?.variant_mata_sku) {
+      return lineItem.variant.variant_mata_sku;
+    }
+    if (lineItem.product?.product_meta_sku) {
+      return lineItem.product.product_meta_sku;
+    }
+    return lineItem.sku;
   }
   return lineItem.sku;
 }
@@ -103,7 +106,7 @@ export const handler: Handler = async (event, context) => {
             Numero_Ordine: `0000${order.name.replace("#", "")}`,
             Numero_Riga: k + 1,
             Numero_SottoRiga: 1,
-            Codice_Articolo: getPreferredSKU(line_item),
+            Codice_Articolo: getPreferredSKU(line_item, order.note),
             Quantita_da_Spedire: line_item.quantity,
           })),
         },
