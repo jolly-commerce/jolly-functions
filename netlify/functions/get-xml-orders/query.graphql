@@ -1,0 +1,92 @@
+{
+  orders(
+    first: 100
+    query: "financial_status:paid fulfillment_status:unshipped status:open tag_not:sent_to_fercam"
+  ) {
+    nodes {
+      id
+      fulfillmentOrders(first: 4) {
+        nodes {
+          lineItems(first: 30) {
+            nodes {
+              weight {
+                unit
+                value
+              }
+            }
+          }
+        }
+      }
+      shippingLines(first: 5) {
+        nodes {
+          title
+          requestedFulfillmentService {
+            handle
+          }
+          carrierIdentifier
+        }
+      }
+      name
+      test
+      email
+      name
+      customer {
+        id
+        email
+        firstName
+        lastName
+      }
+      shippingAddress {
+        address1
+        firstName
+        phone
+        city
+        zip
+        province
+        country
+        lastName
+        address2
+        company
+        name
+        countryCodeV2
+        provinceCode
+      }
+      billingAddress {
+        address1
+        firstName
+        phone
+        city
+        zip
+        province
+        country
+        lastName
+        address2
+        company
+        name
+        countryCodeV2
+        provinceCode
+      }
+      lineItems(first: 50) {
+        nodes {
+          sku
+          quantity
+          product {
+            product_meta_sku: metafield(namespace: "jolly_meta", key: "meta_sku") {
+              value
+            }
+          }
+          variant {
+            variant_mata_sku: metafield(namespace: "jolly_meta", key: "meta_sku") {
+              value
+            }
+          }
+        }
+      }
+      fulfillments(first: 5) {
+        service {
+          serviceName
+        }
+      }
+    }
+  }
+}

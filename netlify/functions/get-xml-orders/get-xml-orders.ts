@@ -53,6 +53,16 @@ function getDeliveryCode(order: any): string {
   return "FERCAM_FLEX";
 }
 
+function getPreferredSKU(lineItem: any): string {
+  if (lineItem.variant?.variant_mata_sku) {
+    return lineItem.variant.variant_mata_sku;
+  }
+  if (lineItem.product?.product_meta_sku) {
+    return lineItem.product.product_meta_sku;
+  }
+  return lineItem.sku;
+}
+
 export const handler: Handler = async (event, context) => {
   let body: data_type = JSON.parse(event.body);
 
@@ -93,7 +103,7 @@ export const handler: Handler = async (event, context) => {
             Numero_Ordine: `0000${order.name.replace("#", "")}`,
             Numero_Riga: k + 1,
             Numero_SottoRiga: 1,
-            Codice_Articolo: line_item.sku,
+            Codice_Articolo: getPreferredSKU(line_item),
             Quantita_da_Spedire: line_item.quantity,
           })),
         },
