@@ -56,9 +56,15 @@ function getDeliveryCode(order: any): string {
 function getPreferredSKU(lineItem: any, note?: string | null): string {
   if (note && typeof note === "string" && note.includes("belveo.es")) {
     if (lineItem.variant?.variant_mata_sku) {
+      if (typeof lineItem.variant.variant_mata_sku === "object" && lineItem.variant.variant_mata_sku.value) {
+        return lineItem.variant.variant_mata_sku.value;
+      }
       return lineItem.variant.variant_mata_sku;
     }
     if (lineItem.product?.product_meta_sku) {
+      if (typeof lineItem.product.product_meta_sku === "object" && lineItem.product.product_meta_sku.value) {
+        return lineItem.product.product_meta_sku.value;
+      }
       return lineItem.product.product_meta_sku;
     }
     return lineItem.sku;
