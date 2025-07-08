@@ -54,20 +54,16 @@ function getDeliveryCode(order: any): string {
 }
 
 function getPreferredSKU(lineItem: any, note?: string | null): string {
-  if (note && typeof note === "string" && note.includes("belveo.es")) {
-    if (lineItem.variant?.variant_mata_sku) {
-      if (typeof lineItem.variant.variant_mata_sku === "object" && lineItem.variant.variant_mata_sku.value) {
-        return lineItem.variant.variant_mata_sku.value;
-      }
-      return lineItem.variant.variant_mata_sku;
+  if (note?.includes("belveo.es")) {
+    const variantSku = lineItem.variant?.variant_mata_sku;
+    const productSku = lineItem.product?.product_meta_sku;
+    
+    if (variantSku) {
+      return typeof variantSku === "object" ? variantSku.value : variantSku;
     }
-    if (lineItem.product?.product_meta_sku) {
-      if (typeof lineItem.product.product_meta_sku === "object" && lineItem.product.product_meta_sku.value) {
-        return lineItem.product.product_meta_sku.value;
-      }
-      return lineItem.product.product_meta_sku;
+    if (productSku) {
+      return typeof productSku === "object" ? productSku.value : productSku;
     }
-    return lineItem.sku;
   }
   return lineItem.sku;
 }
@@ -105,16 +101,43 @@ export const handler: Handler = async (event, context) => {
         Peso_Carico_Previsto: getOrderTotalWeight(order.fulfillmentOrders.nodes),
         Aspetto1_Qta: order.shippingLines.nodes.length,
         Righe_Ordine: {
-          Riga_Ordine: order.lineItems.nodes.map((line_item, k) => ({
-            Codice_Cliente: String(
-              order.customer.id.replace("gid://shopify/Customer/", "")
-            ).slice(0, -1),
-            Numero_Ordine: `0000${order.name.replace("#", "")}`,
-            Numero_Riga: k + 1,
-            Numero_SottoRiga: 1,
-            Codice_Articolo: getPreferredSKU(line_item, order.note),
-            Quantita_da_Spedire: line_item.quantity,
-          })),
+          Riga_Ordine: order.lineItems.nodes.flatMap((line_item, k) => {
+            const sku = getPreferredSKU(line_item, order.note);
+            
+            if (sku.includes(',')) {
+              const skus = sku.split(',').map(s => s.trim());
+              const skuCounts = {};
+              
+              // Count occurrences of each SKU
+              skus.forEach(individualSku => {
+                skuCounts[individualSku] = (skuCounts[individualSku] || 0) + line_item.quantity;
+              });
+              
+              // Create entries for unique SKUs with their counts
+              return Object.entries(skuCounts).map(([individualSku, quantity]) => ({
+                Codice_Cliente: String(
+                  order.customer.id.replace("gid://shopify/Customer/", "")
+                ).slice(0, -1),
+                Numero_Ordine: `0000${order.name.replace("#", "")}`,
+                Numero_Riga: k + 1,
+                Numero_SottoRiga: 1,
+                Codice_Articolo: individualSku,
+                Quantita_da_Spedire: quantity,
+              }));
+            } else {
+              // Single SKU, return as is
+              return [{
+                Codice_Cliente: String(
+                  order.customer.id.replace("gid://shopify/Customer/", "")
+                ).slice(0, -1),
+                Numero_Ordine: `0000${order.name.replace("#", "")}`,
+                Numero_Riga: k + 1,
+                Numero_SottoRiga: 1,
+                Codice_Articolo: sku,
+                Quantita_da_Spedire: line_item.quantity,
+              }];
+            }
+          }),
         },
       });
     });
