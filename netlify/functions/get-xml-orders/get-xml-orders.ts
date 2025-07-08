@@ -119,7 +119,7 @@ export const handler: Handler = async (event, context) => {
                   order.customer.id.replace("gid://shopify/Customer/", "")
                 ).slice(0, -1),
                 Numero_Ordine: `0000${order.name.replace("#", "")}`,
-                Numero_Riga: k + 1,
+                Numero_Riga: null, // Will be set later
                 Numero_SottoRiga: 1,
                 Codice_Articolo: individualSku,
                 Quantita_da_Spedire: quantity,
@@ -131,13 +131,16 @@ export const handler: Handler = async (event, context) => {
                   order.customer.id.replace("gid://shopify/Customer/", "")
                 ).slice(0, -1),
                 Numero_Ordine: `0000${order.name.replace("#", "")}`,
-                Numero_Riga: k + 1,
+                Numero_Riga: null, // Will be set later
                 Numero_SottoRiga: 1,
                 Codice_Articolo: sku,
                 Quantita_da_Spedire: line_item.quantity,
               }];
             }
-          }),
+          }).map((item, index) => ({
+            ...item,
+            Numero_Riga: index + 1, // Sequential numbering
+          })),
         },
       });
     });
